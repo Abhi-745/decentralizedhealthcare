@@ -1,0 +1,360 @@
+{
+  "info": {
+    "_postman_id": "b1a2c3d4-e5f6-7890-1234-56789abcdef0",
+    "name": "VeristasId - Zero Trust Medical Platform (FINAL)",
+    "description": "Complete Final API Collection for VeristasId. Follow the numbered folders in order for a complete demo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Patient Registration",
+      "item": [
+        {
+          "name": "Auto-Register Demo Patient (Get Patient JWT)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/patients/auto-register-demo",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "patients", "auto-register-demo"]
+            },
+            "description": "Step 1: Run this first. Copy the 'proof.jwt' from the response. This is your PATIENT JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "Manual Register New Patient (Custom DID)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"abhaId\": \"44-4444-4444-4444\",\n  \"did\": \"did:veristas:patient:CUSTOM_DID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/patients/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "patients", "register"]
+            },
+            "description": "Register a brand new patient with a custom DID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Consent Management (Patient Token Required)",
+      "item": [
+        {
+          "name": "Grant Consent to Surgeon",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delegateDid\": \"SURG-1000\",\n  \"purpose\": \"Surgery Consultation\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/consent/grant",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "consent", "grant"]
+            },
+            "description": "AUTH: Use PATIENT JWT as Bearer Token. Grants Dr. Fisher access to your EMR."
+          },
+          "response": []
+        },
+        {
+          "name": "Revoke Consent (On Discharge)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delegateDid\": \"SURG-1000\",\n  \"purpose\": \"Discharged - revoking access\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/consent/revoke",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "consent", "revoke"]
+            },
+            "description": "AUTH: Use PATIENT JWT as Bearer Token. Revokes the surgeon's access after discharge."
+          },
+          "response": []
+        },
+        {
+          "name": "View My Active Consents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/consent/mine",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "consent", "mine"]
+            },
+            "description": "AUTH: Use PATIENT JWT as Bearer Token. Shows all active consents granted."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. EMR Operations - Normal Flow",
+      "item": [
+        {
+          "name": "Patient Views Own EMR",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/emr/did:veristas:patient:MFYwEAYHKoZIzj0C",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emr", "did:veristas:patient:MFYwEAYHKoZIzj0C"]
+            },
+            "description": "AUTH: Use PATIENT JWT as Bearer Token. A patient can always read their own EMR."
+          },
+          "response": []
+        },
+        {
+          "name": "Surgeon Writes EMR (After Consent Granted)",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"esid\": \"CONSULT-2026\",\n    \"diagnosis\": \"Mild viral fever with fatigue. Needs rest.\",\n    \"vitals\": \"BP: 120/80, Temp: 101F, Heart Rate: 78 bpm\",\n    \"prescription\": \"Paracetamol 500mg twice daily for 3 days\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/emr/did:veristas:patient:MFYwEAYHKoZIzj0C",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emr", "did:veristas:patient:MFYwEAYHKoZIzj0C"]
+            },
+            "description": "AUTH: Use SURGEON JWT. Requires patient to have granted consent first (Step 2)."
+          },
+          "response": []
+        },
+        {
+          "name": "Patient Deletes Own EMR (Right to be Forgotten)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/emr/did:veristas:patient:MFYwEAYHKoZIzj0C",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emr", "did:veristas:patient:MFYwEAYHKoZIzj0C"]
+            },
+            "description": "AUTH: Use PATIENT JWT. Only the patient can permanently delete their own record."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Emergency Session Management",
+      "item": [
+        {
+          "name": "Check Current Emergency Stage",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/emergency/ES-999",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emergency", "ES-999"]
+            },
+            "description": "Check what stage the ES-999 emergency session is currently at (DISPATCHED or ARRIVED)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Emergency Session",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"esid\": \"ES-100\",\n    \"patientId\": \"99-9999-9999-9999\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/emergency/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emergency", "create"]
+            },
+            "description": "Creates a brand new emergency dispatch session for any patient. Starts at DISPATCHED stage."
+          },
+          "response": []
+        },
+        {
+          "name": "Move Patient to DISPATCHED (Paramedic Phase)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"esid\": \"ES-999\",\n    \"stage\": \"dispatched\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/emergency/update-stage",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emergency", "update-stage"]
+            },
+            "description": "Resets the session back to DISPATCHED. Only the PARAMEDIC can access EMR in this stage."
+          },
+          "response": []
+        },
+        {
+          "name": "Move Patient to ARRIVED (Surgeon Phase)",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"esid\": \"ES-999\",\n    \"stage\": \"arrived\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/emergency/update-stage",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emergency", "update-stage"]
+            },
+            "description": "Advances stage to ARRIVED. Only the SURGEON can read/update in this stage."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Emergency Break-Glass Access",
+      "item": [
+        {
+          "name": "Paramedic Reads Patient (DISPATCHED stage only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/medical-records/99-9999-9999-9999",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "medical-records", "99-9999-9999-9999"]
+            },
+            "description": "AUTH: Use PARAMEDIC JWT. Only works when session stage is 'dispatched'. Returns blood type and allergies."
+          },
+          "response": []
+        },
+        {
+          "name": "Surgeon Reads Patient (ARRIVED stage only)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/medical-records/99-9999-9999-9999",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "medical-records", "99-9999-9999-9999"]
+            },
+            "description": "AUTH: Use SURGEON JWT. Only works when session stage is 'arrived'."
+          },
+          "response": []
+        },
+        {
+          "name": "Surgeon Writes Emergency EMR (ARRIVED stage only)",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"esid\": \"ES-999\",\n    \"diagnosis\": \"Severe trauma. Unconscious patient. Emergency surgery performed.\",\n    \"vitals\": \"BP: 90/60, Heart Rate: 115 bpm, O2: 91%\",\n    \"prescription\": \"1L Saline IV, O-Negative blood transfusion, Morphine 5mg post-op\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/emr/did:veristas:patient:MFYwEAYHKoZIzj0C",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "emr", "did:veristas:patient:MFYwEAYHKoZIzj0C"]
+            },
+            "description": "AUTH: Use SURGEON JWT. Uses esid=ES-999 to bypass consent via OPA emergency override."
+          },
+          "response": []
+        },
+        {
+          "name": "Create John Doe Provisional Identity",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/medical-records/provisional",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "medical-records", "provisional"]
+            },
+            "description": "Creates a TEMP-JD identity for unidentified, unconscious trauma patients with no ID."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. Audit & Blockchain Ledger",
+      "item": [
+        {
+          "name": "View Full Blockchain Ledger",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/audit/ledger",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "audit", "ledger"]
+            },
+            "description": "Returns the full immutable audit log showing every access event with SHA-256 hash chain."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Chain Mathematical Integrity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/audit/verify",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["api", "audit", "verify"]
+            },
+            "description": "Mathematically re-verifies all SHA-256 hashes to prove the database has not been tampered with."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

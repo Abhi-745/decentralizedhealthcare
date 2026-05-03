@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeristasId - Zero Trust Medical Identity</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <header class="glass-header">
+            <h1>Veristas<span class="highlight">Id</span></h1>
+            <p>Zero-Trust Medical Identity & Consent Engine</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- PATIENT DASHBOARD -->
+            <section class="glass-panel patient-panel">
+                <div class="panel-header">
+                    <h2>📱 Patient Wallet</h2>
+                    <span class="status-badge status-offline" id="wallet-status">Unregistered</span>
+                </div>
+                
+                <div class="card-content">
+                    <button id="btn-register" class="btn btn-primary glow-effect">Generate Digital ID (DID)</button>
+                    
+                    <div id="did-display" class="hidden code-block mt-4">
+                        <p class="label">Your Decentralized ID:</p>
+                        <code id="did-text">...</code>
+                    </div>
+
+                    <div id="consent-section" class="hidden mt-6">
+                        <h3>Pending Authorizations</h3>
+                        <div class="consent-request glass-card">
+                            <div class="request-info">
+                                <span class="badge">EMT-9110</span>
+                                <div>
+                                    <h4>Bobbi D'Amore</h4>
+                                    <p>Purpose: Emergency Medical Response</p>
+                                </div>
+                            </div>
+                            <button id="btn-grant-consent" class="btn btn-success">Approve</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOSPITAL DASHBOARD -->
+            <section class="glass-panel hospital-panel">
+                <div class="panel-header">
+                    <h2>🏥 Hospital Portal</h2>
+                    <span class="role-badge">Paramedic: EMT-9110</span>
+                </div>
+                
+                <div class="card-content">
+                    <div class="emr-lookup">
+                        <p class="label">Query Electronic Medical Record:</p>
+                        <div class="input-group">
+                            <input type="text" id="patient-did-input" placeholder="Enter Patient DID (did:veristas:...)">
+                            <button id="btn-fetch-emr" class="btn btn-secondary">Fetch EMR</button>
+                        </div>
+                    </div>
+
+                    <div id="emr-result" class="hidden mt-4">
+                        <div class="emr-card glass-card">
+                            <h3>Medical Record</h3>
+                            <div id="emr-data" class="emr-data">
+                                <!-- Data injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="divider">
+
+                    <div class="emergency-override mt-6">
+                        <h3>⚠️ Break-Glass Override</h3>
+                        <p class="text-sm">Simulate a 911 dispatch session to bypass patient consent.</p>
+                        <button id="btn-trigger-911" class="btn btn-danger">Trigger 911 Dispatch Session</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
