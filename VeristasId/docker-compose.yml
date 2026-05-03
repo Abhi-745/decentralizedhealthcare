@@ -1,0 +1,29 @@
+services:
+  # 1. PostgreSQL Database (PIP)
+  db:
+    image: postgres:15
+    container_name: btp_db
+    environment:
+      POSTGRES_DB: btp
+      POSTGRES_USER: NagSigma
+      POSTGRES_PASSWORD: NagSigma123
+    ports:
+      - "5432:5432"
+    volumes:
+      # Maps your local SQL file to automatically seed your DB
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # 2. Open Policy Agent (PDP)
+  opa:
+    image: openpolicyagent/opa:latest
+    container_name: btp_opa
+    ports:
+      - "8181:8181"
+    volumes:
+      # Maps your local 'policies' folder into the OPA container
+      - ./policies:/policies
+    command:
+      - "run"
+      - "--server"
+      - "--addr=0.0.0.0:8181"
+      - "/policies/" # 👈 FIXED: Now it loads all your rules, including emergency.rego!

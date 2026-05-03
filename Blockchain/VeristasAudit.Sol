@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+/**
+ * @title VeristasAudit
+ * @dev Immutable audit trail for the AC-ABAC Emergency Access System
+ */
+contract VeristasAudit {
+
+    // 1. The Event Log (This is what makes the audit tamper-proof and searchable)
+    event AccessLogged(
+        uint256 indexed timestamp,
+        string userDid,
+        string roleTag,
+        string action,
+        string stage,
+        bool accessGranted
+    );
+
+    // 2. The Struct (To hold the data structure of a single audit event)
+    struct AuditRecord {
+        uint256 timestamp;
+        string userDid;     // e.g., "did:ethr:0xParamedic123"
+        string roleTag;     // e.g., "a" (paramedic) or "h" (hospital)
+        string action;      // e.g., "read" or "update"
+        string stage;       // e.g., "dispatched" or "arrived"
+        bool accessGranted; // true if OPA allowed, false if denied
+    }
+
+    // Array to store all records for easy retrieval in your frontend/dashboard
+    AuditRecord[] public auditTrail;
+
+    // 3. The Execution Function (Spring Boot calls this)
+    function logAccess(
+        string memory _userDid,
+        string memory _roleTag,
+        string memory _action,
+        string memory _stage,
+        bool _accessGranted
+    ) public {
+
+        // Create the record
+        AuditRecord memory newRecord = AuditRecord({
+            timestamp: block.timestamp, // Automatically grabs the exact network time
+            userDid: _userDid,
+            roleTag: _roleTag,
+            action: _action,
+            stage: _stage,
+            accessGranted: _accessGranted
+        });
+
+        // Save to contract state
+        auditTrail.push(newRecord);
+
+        // Emit the event to the blockchain ledger
+        emit AccessLogged(block.timestamp, _userDid, _roleTag, _action, _stage, _accessGranted);
+    }
+
+    // 4. Helper function to check total number of audits
+    function getAuditCount() public view returns (uint256) {
+        return auditTrail.length;
+    }
+
+    // 5. Helper function to fetch a specific record for forensic review
+    function getAuditRecord(uint256 index) public view returns (
+        uint256, string memory, string memory, string memory, string memory, bool
+    ) {
+        require(index < auditTrail.length, "Record does not exist.");
+        AuditRecord memory record = auditTrail[index];
+        return (record.timestamp, record.userDid, record.roleTag, record.action, record.stage, record.accessGranted);
+    }
+}
