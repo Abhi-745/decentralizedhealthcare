@@ -109,6 +109,13 @@
 			<artifactId>core</artifactId>
 			<version>4.9.8</version>
 		</dependency>
+
+		<!-- H2 in-memory database for @DataJpaTest (no PostgreSQL needed in tests) -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -141,6 +148,71 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+
+			<!--
+				web3j Maven Plugin
+				Compiles src/main/solidity/*.sol and generates a type-safe Java
+				wrapper class during the generate-sources phase.
+
+				Generated output: com.example.VeristasId.Blockchain.VeristasAudit
+
+				The wrapper exposes:
+				  - VeristasAudit.deploy()      — deploys the contract
+				  - VeristasAudit.load()        — connects to existing contract
+				  - contract.logAccess(...)     — calls the on-chain function
+				  - contract.getAuditCount()    — reads total records from chain
+
+				Bundled solcJ compiler — no external solc installation required.
+			-->
+			<plugin>
+				<groupId>org.web3j</groupId>
+				<artifactId>web3j-maven-plugin</artifactId>
+				<version>4.9.8</version>
+				<configuration>
+					<packageName>com.example.VeristasId.Blockchain</packageName>
+					<sourceDestination>${project.basedir}/src/main/java</sourceDestination>
+					<nativeJavaType>true</nativeJavaType>
+					<outputFormat>java</outputFormat>
+					<soliditySourceFiles>
+						<directory>${project.basedir}/src/main/solidity</directory>
+						<includes>
+							<include>**/*.sol</include>
+						</includes>
+					</soliditySourceFiles>
+				</configuration>
+				<executions>
+					<execution>
+						<id>generate-sources-web3j</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate-sources</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!--
+				JaCoCo — Java Code Coverage
+				Generates an HTML coverage report after running tests.
+				View it at: target/site/jacoco/index.html
+				Run with: mvn test jacoco:report
+			-->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals><goal>report</goal></goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

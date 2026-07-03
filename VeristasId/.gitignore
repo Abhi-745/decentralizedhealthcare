@@ -31,3 +31,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secrets — NEVER commit these ###
+.env
+*.key
+wallet_private.key
+wallet_public.key
+
+### Frontend build — never commit ###
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.cache/
