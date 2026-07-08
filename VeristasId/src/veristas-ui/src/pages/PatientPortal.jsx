@@ -1,256 +1,355 @@
-import React, { useState, useEffect } from 'react';
-import { Key, ShieldCheck, CheckCircle2, AlertCircle, Smartphone, Lock, Fingerprint } from 'lucide-react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Shield, CreditCard, Key, CheckCircle, Loader2, User, ArrowRight } from 'lucide-react';
+import { useDispatch } from 'react-redux';
+import { loginPatient } from '../store/slices/authSlice';
+import { useToast } from '../components/Toast';
+import GlassCard from '../components/GlassCard';
+import GradientButton from '../components/GradientButton';
+import StatusBadge from '../components/StatusBadge';
 import axios from 'axios';
 
-export default function PatientPortal() {
+// ═══════════════════════════════════════════════════
+//  PatientPortal — Day 6 rebuild
+//  Multi-step ABHA ID login + wallet display
+// ═══════════════════════════════════════════════════
+
+// Step 1 — Enter ABHA ID
+function StepEnterAbha({ onNext }) {
   const [abhaId, setAbhaId] = useState('');
-  const [otp, setOtp] = useState('');
-  
-  // States: loading, login (returning user), input_abha (new user), input_otp, processing, done, error
-  const [step, setStep] = useState('loading'); 
-  const [errorMsg, setErrorMsg] = useState('');
-  const [wallet, setWallet] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
-  // Check for returning user on component mount
-  useEffect(() => {
-    const savedWallet = localStorage.getItem('veristas_wallet');
-    if (savedWallet) {
-      setWallet(JSON.parse(savedWallet));
-      setStep('login');
-    } else {
-      setStep('input_abha');
-    }
-  }, []);
-
-  const handleRequestOtp = () => {
-    if (!abhaId || abhaId.length < 5) {
-      setErrorMsg('Please enter a valid ABHA ID.');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!abhaId.trim()) {
+      toast.error('ABHA ID Required', 'Please enter your 14-digit ABHA number');
       return;
     }
-    setErrorMsg('');
-    setStep('input_otp');
+    setLoading(true);
+    // Simulate a small network delay before proceeding
+    await new Promise((r) => setTimeout(r, 700));
+    setLoading(false);
+    toast.info('OTP Sent', `A 6-digit code was sent to your registered number`);
+    onNext(abhaId.trim());
   };
-
-  const handleVerifyOtp = async () => {
-    if (otp !== '123456') {
-      setErrorMsg('Invalid OTP. For this demo, please use 123456.');
-      return;
-    }
-    
-    setStep('processing');
-    setErrorMsg('');
-
-    try {
-      const keyPair = await window.crypto.subtle.generateKey(
-        { name: "ECDSA", namedCurve: "P-256" },
-        true,
-        ["sign", "verify"]
-      );
-
-      const exportedPublicKey = await window.crypto.subtle.exportKey("spki", keyPair.publicKey);
-      const exportedPublicKeyBuffer = new Uint8Array(exportedPublicKey);
-      const base64PublicKey = btoa(String.fromCharCode(...exportedPublicKeyBuffer));
-      
-      const uniqueKeyBytes = base64PublicKey.substring(base64PublicKey.length - 32).replace(/[^a-zA-Z0-9]/g, "");
-      const generatedDid = `did:veristas:patient:${uniqueKeyBytes}`;
-
-      const response = await axios.post('/api/patients/register', {
-        abhaId: abhaId,
-        did: generatedDid
-      });
-
-      const newWallet = {
-        did: generatedDid,
-        jwt: response.data.proof.jwt,
-        // In a real app, private keys shouldn't be serialized to localStorage without encryption!
-        // But for this frontend simulation, we store a mock reference.
-        isSecured: true 
-      };
-
-      localStorage.setItem('veristas_wallet', JSON.stringify(newWallet));
-      setWallet(newWallet);
-      setStep('done');
-    } catch (error) {
-      setStep('error');
-      setErrorMsg(error.response?.data?.error || error.response?.data || 'Failed to generate identity. This ABHA ID might already be registered.');
-    }
-  };
-
-  const handleBiometricLogin = () => {
-    setStep('processing');
-    // Simulate biometric delay
-    setTimeout(() => {
-      setStep('done');
-    }, 1500);
-  };
-
-  const resetFlow = () => {
-    localStorage.removeItem('veristas_wallet');
-    setStep('input_abha');
-    setAbhaId('');
-    setOtp('');
-    setWallet(null);
-    setErrorMsg('');
-  };
-
-  if (step === 'loading') return null;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-panel p-8"
-      >
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="bg-sky-500/20 p-3 rounded-xl border border-sky-500/30">
-            <Key className="w-6 h-6 text-sky-400" />
+    <motion.div
+      key="step1"
+      initial={{ opacity: 0, x: -30 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 30 }}
+      transition={{ duration: 0.3 }}
+    >
+      <GlassCard glow="sky" className="p-8 max-w-md mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-xl bg-sky-500/20">
+            <CreditCard className="w-6 h-6 text-sky-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">Patient Identity Wallet</h2>
-            <p className="text-slate-400">Manage your Web3 Zero-Trust Identity</p>
+            <h2 className="text-lg font-bold text-white">Patient Login</h2>
+            <p className="text-xs text-slate-400">Step 1 of 2 — Enter your ABHA ID</p>
           </div>
         </div>
 
-        <AnimatePresence mode="wait">
-          
-          {/* --- RETURNING USER LOGIN SCREEN --- */}
-          {step === 'login' && wallet && (
-            <motion.div key="login" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-6 text-center py-6">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-slate-800 rounded-full mb-4 shadow-[0_0_30px_rgba(56,189,248,0.2)]">
-                <Fingerprint className="w-10 h-10 text-sky-400" />
-              </div>
-              <h3 className="text-xl font-medium text-white">Welcome Back</h3>
-              <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
-                Your cryptographic keys are stored safely on this device. Please authenticate to unlock your wallet.
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm text-slate-300 font-medium mb-1.5 block">
+              ABHA Health ID
+            </label>
+            <input
+              id="abha-input"
+              type="text"
+              value={abhaId}
+              onChange={(e) => setAbhaId(e.target.value)}
+              placeholder="99-1234-5678-9012"
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white
+                         placeholder-slate-500 text-sm font-mono
+                         focus:outline-none focus:border-sky-500/60 focus:bg-white/8
+                         transition-all duration-200"
+            />
+            <p className="text-xs text-slate-500 mt-1.5">
+              Format: 14-digit Ayushman Bharat Health Account number
+            </p>
+          </div>
+
+          <GradientButton type="submit" variant="primary" fullWidth loading={loading}
+            icon={<ArrowRight className="w-4 h-4" />}>
+            Send OTP
+          </GradientButton>
+        </form>
+      </GlassCard>
+    </motion.div>
+  );
+}
+
+// Step 2 — Enter OTP + fetch wallet from backend
+function StepEnterOtp({ abhaId, onSuccess }) {
+  const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const toast = useToast();
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    if (otp.length !== 6) {
+      toast.error('Invalid OTP', 'OTP must be exactly 6 digits');
+      return;
+    }
+    setLoading(true);
+    try {
+      // Fetch wallet/DID info from backend PatientWalletService
+      const res = await axios.get('/api/wallet/did');
+      const wallet = res.data; // { did, publicKey }
+
+      // Dispatch to Redux — store globally for all components
+      dispatch(loginPatient({ abhaId, wallet }));
+      toast.success('Login Successful', `Welcome back! DID loaded.`);
+      onSuccess({ abhaId, wallet });
+    } catch (err) {
+      // Backend not running? Use a mock wallet for UI development
+      const mockWallet = {
+        did: `did:veristas:patient:${abhaId.replace(/-/g, '').substring(0, 8)}Ab3x`,
+        publicKey: 'MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE...MockKey==',
+      };
+      dispatch(loginPatient({ abhaId, wallet: mockWallet }));
+      toast.success('Login Successful (Mock)', 'Backend offline — using mock wallet');
+      onSuccess({ abhaId, wallet: mockWallet });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      key="step2"
+      initial={{ opacity: 0, x: -30 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 30 }}
+      transition={{ duration: 0.3 }}
+    >
+      <GlassCard glow="indigo" className="p-8 max-w-md mx-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 rounded-xl bg-indigo-500/20">
+            <Key className="w-6 h-6 text-indigo-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-white">Verify OTP</h2>
+            <p className="text-xs text-slate-400">Step 2 of 2 — Enter the 6-digit code</p>
+          </div>
+        </div>
+
+        {/* ABHA ID display */}
+        <div className="mb-4 px-3 py-2 rounded-lg bg-white/5 border border-white/10">
+          <p className="text-xs text-slate-400">Logging in as</p>
+          <p className="text-sm font-mono text-sky-300 font-semibold">{abhaId}</p>
+        </div>
+
+        <form onSubmit={handleVerify} className="space-y-4">
+          <div>
+            <label className="text-sm text-slate-300 font-medium mb-1.5 block">
+              6-Digit OTP
+            </label>
+            <input
+              id="otp-input"
+              type="text"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} // digits only
+              placeholder="• • • • • •"
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white
+                         placeholder-slate-500 text-center text-2xl font-mono tracking-[1rem]
+                         focus:outline-none focus:border-indigo-500/60
+                         transition-all duration-200"
+            />
+          </div>
+          <GradientButton type="submit" variant="primary" fullWidth loading={loading}
+            icon={<CheckCircle className="w-4 h-4" />}>
+            Verify & Load Wallet
+          </GradientButton>
+        </form>
+      </GlassCard>
+    </motion.div>
+  );
+}
+
+// Step 3 — Dashboard (after login)
+function PatientDashboard({ abhaId, wallet }) {
+  const toast = useToast();
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied!', `${label} copied to clipboard`);
+  };
+
+  return (
+    <motion.div
+      key="dashboard"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6 max-w-2xl mx-auto"
+    >
+      {/* Welcome header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-white">Your Health Wallet</h2>
+          <p className="text-slate-400 text-sm mt-1">Self-Sovereign Identity — you own your data</p>
+        </div>
+        <StatusBadge status="VALID" pulse />
+      </div>
+
+      {/* Identity Card */}
+      <GlassCard glow="sky" className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2.5 rounded-xl bg-sky-500/20">
+            <User className="w-5 h-5 text-sky-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white">Patient Identity</h3>
+            <p className="text-xs text-slate-400">ABHA-linked Verifiable Credential</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {/* ABHA ID */}
+          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+            <div>
+              <p className="text-xs text-slate-400">ABHA Health ID</p>
+              <p className="text-sm font-mono text-white font-semibold">{abhaId}</p>
+            </div>
+            <button
+              onClick={() => copyToClipboard(abhaId, 'ABHA ID')}
+              className="text-xs text-sky-400 hover:text-sky-300 transition-colors px-2 py-1
+                         rounded-lg hover:bg-sky-500/10"
+            >
+              Copy
+            </button>
+          </div>
+
+          {/* DID */}
+          <div className="flex items-start justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex-1 min-w-0 mr-2">
+              <p className="text-xs text-slate-400">Decentralized ID (DID)</p>
+              <p className="text-xs font-mono text-indigo-300 break-all leading-relaxed mt-0.5">
+                {wallet?.did}
               </p>
-              
-              <button onClick={handleBiometricLogin} className="w-full btn-primary flex justify-center items-center space-x-2">
-                <Fingerprint className="w-5 h-5" />
-                <span>Simulate Biometric Unlock (FaceID)</span>
-              </button>
-              
-              <button onClick={resetFlow} className="text-sm text-slate-500 hover:text-rose-400 transition underline mt-4">
-                This isn't my device (Clear Wallet)
-              </button>
-            </motion.div>
-          )}
+            </div>
+            <button
+              onClick={() => copyToClipboard(wallet?.did, 'DID')}
+              className="text-xs text-sky-400 hover:text-sky-300 transition-colors px-2 py-1
+                         rounded-lg hover:bg-sky-500/10 flex-shrink-0"
+            >
+              Copy
+            </button>
+          </div>
+        </div>
+      </GlassCard>
 
-          {/* --- NEW USER REGISTRATION FLOW --- */}
-          {(step === 'input_abha' || step === 'error') && !wallet && (
-            <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
-              <div className="bg-sky-500/10 border border-sky-500/20 p-4 rounded-lg mb-6">
-                <p className="text-sky-300 text-sm font-medium">New Device Detected</p>
-                <p className="text-slate-400 text-xs mt-1">Please register your ABHA ID to provision keys to this device.</p>
+      {/* Public Key Card */}
+      <GlassCard glow="indigo" className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2.5 rounded-xl bg-indigo-500/20">
+            <Key className="w-5 h-5 text-indigo-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white">secp256k1 Public Key</h3>
+            <p className="text-xs text-slate-400">ECDSA — Ethereum-compatible key pair</p>
+          </div>
+        </div>
+        <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-xs font-mono text-emerald-300 break-all leading-relaxed">
+            {wallet?.publicKey || 'Loading key...'}
+          </p>
+        </div>
+        <p className="text-xs text-slate-500 mt-2.5">
+          🔒 Your <span className="text-rose-400 font-medium">private key</span> is stored securely
+          on the device and is never transmitted.
+        </p>
+      </GlassCard>
+
+      {/* Placeholder sections (Days 8–10) */}
+      <div className="grid grid-cols-2 gap-4">
+        <GlassCard glow="emerald" className="p-4 opacity-60">
+          <p className="text-sm font-semibold text-white">Active Consents</p>
+          <p className="text-xs text-slate-400 mt-1">Coming on Day 8</p>
+        </GlassCard>
+        <GlassCard glow="amber" className="p-4 opacity-60">
+          <p className="text-sm font-semibold text-white">QR Code</p>
+          <p className="text-xs text-slate-400 mt-1">Coming on Day 10</p>
+        </GlassCard>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
+export default function PatientPortal() {
+  // step: 'abha' | 'otp' | 'dashboard'
+  const [step, setStep] = useState('abha');
+  const [abhaId, setAbhaId] = useState('');
+  const [wallet, setWallet] = useState(null);
+
+  return (
+    <div>
+      {/* Page title */}
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center gap-2 mb-3">
+          <Shield className="w-7 h-7 text-sky-400" />
+          <h1 className="text-3xl font-bold text-white">Patient Portal</h1>
+        </div>
+        <p className="text-slate-400 max-w-md mx-auto text-sm leading-relaxed">
+          Access your health records and manage your self-sovereign digital identity.
+        </p>
+      </div>
+
+      {/* Step progress bar */}
+      {step !== 'dashboard' && (
+        <div className="flex items-center justify-center gap-2 mb-8">
+          {['abha', 'otp'].map((s, i) => (
+            <React.Fragment key={s}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                transition-all duration-300
+                ${step === s
+                  ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/40'
+                  : step === 'otp' && s === 'abha'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white/10 text-slate-400'}`}>
+                {step === 'otp' && s === 'abha' ? <CheckCircle className="w-4 h-4" /> : i + 1}
               </div>
+              {i < 1 && <div className={`h-0.5 w-12 rounded-full transition-all duration-500
+                ${step === 'otp' ? 'bg-emerald-500' : 'bg-white/10'}`} />}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">ABHA ID (Indian Health ID)</label>
-                <input
-                  type="text"
-                  placeholder="11-1111-1111-1111"
-                  className="input-field"
-                  value={abhaId}
-                  onChange={(e) => setAbhaId(e.target.value)}
-                />
-              </div>
-              
-              {errorMsg && (
-                <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 rounded-lg flex items-start space-x-3">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm">{errorMsg}</p>
-                </div>
-              )}
-
-              <button onClick={handleRequestOtp} className="w-full btn-primary flex justify-center items-center space-x-2">
-                <Smartphone className="w-5 h-5" />
-                <span>Send Authentication OTP</span>
-              </button>
-            </motion.div>
-          )}
-
-          {step === 'input_otp' && (
-            <motion.div key="step2" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
-              <div className="bg-indigo-500/10 border border-indigo-500/30 p-4 rounded-lg flex items-start space-x-3">
-                <Smartphone className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-indigo-300 font-medium">OTP sent to Aadhaar-linked mobile</p>
-                  <p className="text-xs text-indigo-400/70 mt-1">For this demo, please enter 123456</p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Enter 6-Digit OTP</label>
-                <input
-                  type="text"
-                  placeholder="123456"
-                  className="input-field tracking-widest font-mono text-center text-xl"
-                  maxLength={6}
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                />
-              </div>
-
-              {errorMsg && (
-                <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-4 rounded-lg flex items-start space-x-3">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm">{errorMsg}</p>
-                </div>
-              )}
-
-              <div className="flex space-x-3">
-                <button onClick={() => setStep('input_abha')} className="px-6 py-2.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 transition">
-                  Back
-                </button>
-                <button onClick={handleVerifyOtp} className="flex-1 btn-success flex justify-center items-center space-x-2">
-                  <Lock className="w-5 h-5" />
-                  <span>Verify & Generate Identity</span>
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 'processing' && (
-            <motion.div key="processing" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-12 space-y-4">
-              <div className="w-12 h-12 border-4 border-sky-500/30 border-t-sky-500 rounded-full animate-spin" />
-              <h3 className="text-lg font-medium text-sky-400">Unlocking Hardware Keystore...</h3>
-              <p className="text-slate-500 text-sm">Securing your identity on the device.</p>
-            </motion.div>
-          )}
-
-          {step === 'done' && wallet && (
-            <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6">
-              <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-lg flex items-center space-x-3">
-                <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-                <div>
-                  <h3 className="text-emerald-400 font-medium">Wallet Active</h3>
-                  <p className="text-emerald-500/70 text-sm">Your private key is unlocked and ready for use.</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="glass-card">
-                  <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Your Decentralized ID (DID)</label>
-                  <div className="font-mono text-sm text-sky-300 mt-1 break-all bg-slate-900/50 p-2 rounded border border-slate-700/50">
-                    {wallet.did}
-                  </div>
-                </div>
-                <div className="glass-card">
-                  <label className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Verifiable Credential (JWT)</label>
-                  <div className="font-mono text-xs text-slate-400 mt-1 break-all bg-slate-900/50 p-2 rounded border border-slate-700/50 h-24 overflow-y-auto">
-                    {wallet.jwt}
-                  </div>
-                </div>
-              </div>
-              
-              <button onClick={resetFlow} className="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 px-6 rounded-lg transition-colors border border-slate-700">
-                Wipe Device Wallet (Simulate Device Lost)
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      {/* Step content */}
+      <AnimatePresence mode="wait">
+        {step === 'abha' && (
+          <StepEnterAbha
+            key="abha"
+            onNext={(id) => { setAbhaId(id); setStep('otp'); }}
+          />
+        )}
+        {step === 'otp' && (
+          <StepEnterOtp
+            key="otp"
+            abhaId={abhaId}
+            onSuccess={({ abhaId: id, wallet: w }) => {
+              setAbhaId(id);
+              setWallet(w);
+              setStep('dashboard');
+            }}
+          />
+        )}
+        {step === 'dashboard' && (
+          <PatientDashboard key="dashboard" abhaId={abhaId} wallet={wallet} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

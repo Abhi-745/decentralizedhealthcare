@@ -184,7 +184,14 @@
 				<executions>
 					<execution>
 						<id>generate-sources-web3j</id>
-						<phase>generate-sources</phase>
+						<!--
+							Phase changed from 'generate-sources' to 'none' so this never
+							runs automatically during 'mvn test'. The Java wrapper
+							(VeristasAudit.java) is already generated and committed to source
+							control. Only re-run manually if VeristasAudit.sol changes:
+							  mvn web3j:generate-sources
+						-->
+						<phase>none</phase>
 						<goals>
 							<goal>generate-sources</goal>
 						</goals>
