@@ -151,6 +151,20 @@
 			</plugin>
 
 			<!--
+				Maven Surefire Plugin — runs unit tests.
+				The argLine enables Byte Buddy experimental mode which is required
+				for Mockito to mock classes on Java 23+ (Byte Buddy only officially
+				supports up to Java 22, so we unlock experimental support).
+			-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<argLine>-Dnet.bytebuddy.experimental=true</argLine>
+				</configuration>
+			</plugin>
+
+			<!--
 				web3j Maven Plugin
 				Compiles src/main/solidity/*.sol and generates a type-safe Java
 				wrapper class during the generate-sources phase.
