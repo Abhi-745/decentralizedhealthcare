@@ -27,3 +27,19 @@ services:
       - "--server"
       - "--addr=0.0.0.0:8181"
       - "/policies/" # 👈 FIXED: Now it loads all your rules, including emergency.rego!
+
+  # 3. Spring Boot Application
+  app:
+    build: .
+    container_name: btp_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/btp
+      SPRING_DATASOURCE_USERNAME: NagSigma
+      SPRING_DATASOURCE_PASSWORD: NagSigma123
+      OPA_URL: http://opa:8181/v1/data/veristas/allow
+    depends_on:
+      - db
+      - opa
+    restart: on-failure
