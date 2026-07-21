@@ -1,9 +1,15 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
+import axios from 'axios'
 import store from './store/store'
 import './index.css'
 import { ToastProvider } from './components/Toast'
+
+// Set the base URL for all axios requests.
+// In local dev, this is empty (so Vite proxy handles /api).
+// In production (Vercel), we will set VITE_API_BASE_URL to the Railway URL.
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
 
 // Import the pages we have built
 import ConsentManager from './pages/ConsentManager'
