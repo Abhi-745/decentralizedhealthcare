@@ -17,6 +17,7 @@ import VCViewerPage from './pages/VCViewerPage'
 import EmergencyDashboard from './pages/EmergencyDashboard'
 import AuditLogViewer from './pages/AuditLogViewer'
 import StaffLoginPage from './pages/StaffLoginPage'
+import PatientRegistrationPage from './pages/PatientRegistrationPage'
 
 function DevNavigator() {
   const [activeTab, setActiveTab] = useState('emergency');
@@ -55,6 +56,12 @@ function DevNavigator() {
         >
           Day 12: Staff Login
         </button>
+        <button 
+          onClick={() => setActiveTab('registration')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'registration' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+        >
+          Day 13: Patient Registration
+        </button>
       </div>
 
       {/* Render Active Page */}
@@ -64,6 +71,7 @@ function DevNavigator() {
         {activeTab === 'emergency' && <EmergencyDashboard />}
         {activeTab === 'audit' && <AuditLogViewer />}
         {activeTab === 'staff' && <StaffLoginPage />}
+        {activeTab === 'registration' && <PatientRegistrationPage />}
       </div>
     </div>
   );
