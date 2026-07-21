@@ -1,29 +1,23 @@
 # ──────────────────────────────────────────────────────────────
-# Stage 1: Build  (uses the full JDK to compile)
+# Stage 1: Build 
 # ──────────────────────────────────────────────────────────────
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM maven:3.8.5-openjdk-17 AS builder
 WORKDIR /workspace
 
-# Copy Maven wrapper first (changes rarely → cached layer)
-COPY mvnw .
-COPY .mvn .mvn
+# Copy pom.xml and source code
 COPY pom.xml .
-RUN chmod +x mvnw
-
-# Download all dependencies into the image (cached separately)
-RUN ./mvnw dependency:go-offline -q
-
-# Copy source code and build the fat JAR (skip tests — already run in CI)
 COPY src src
-RUN ./mvnw package -DskipTests -q
+
+# Build the fat JAR (skip tests)
+RUN mvn package -DskipTests -q
 
 # ──────────────────────────────────────────────────────────────
-# Stage 2: Runtime  (uses a tiny JRE — no compiler, no tools)
+# Stage 2: Runtime  (uses a tiny JRE)
 # ──────────────────────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-# Only copy the compiled JAR from Stage 1 — not source code
+# Copy the compiled JAR
 COPY --from=builder /workspace/target/*.jar app.jar
 
 EXPOSE 8080
