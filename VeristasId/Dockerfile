@@ -8,8 +8,8 @@ WORKDIR /workspace
 COPY pom.xml .
 COPY src src
 
-# Build the fat JAR (skip tests)
-RUN mvn package -DskipTests -q
+# Build the fat JAR (skip test compilation and execution)
+RUN mvn package -Dmaven.test.skip=true -q
 
 # ──────────────────────────────────────────────────────────────
 # Stage 2: Runtime  (uses a tiny JRE)
