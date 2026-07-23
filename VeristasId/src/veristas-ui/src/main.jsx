@@ -18,6 +18,7 @@ import EmergencyDashboard from './pages/EmergencyDashboard'
 import AuditLogViewer from './pages/AuditLogViewer'
 import StaffLoginPage from './pages/StaffLoginPage'
 import PatientRegistrationPage from './pages/PatientRegistrationPage'
+import SystemStatusPage from './pages/SystemStatusPage'
 
 function DevNavigator() {
   const [activeTab, setActiveTab] = useState('emergency');
@@ -62,6 +63,12 @@ function DevNavigator() {
         >
           Day 13: Patient Registration
         </button>
+        <button 
+          onClick={() => setActiveTab('status')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'status' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+        >
+          Day 14: System Status
+        </button>
       </div>
 
       {/* Render Active Page */}
@@ -72,6 +79,7 @@ function DevNavigator() {
         {activeTab === 'audit' && <AuditLogViewer />}
         {activeTab === 'staff' && <StaffLoginPage />}
         {activeTab === 'registration' && <PatientRegistrationPage />}
+        {activeTab === 'status' && <SystemStatusPage />}
       </div>
     </div>
   );
