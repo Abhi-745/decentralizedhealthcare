@@ -20,6 +20,7 @@ import StaffLoginPage from './pages/StaffLoginPage'
 import PatientRegistrationPage from './pages/PatientRegistrationPage'
 import SystemStatusPage from './pages/SystemStatusPage'
 import StaffAuthPage from './pages/StaffAuthPage'
+import EMRViewerPage from './pages/EMRViewerPage'
 
 function DevNavigator() {
   const [activeTab, setActiveTab] = useState('emergency');
@@ -76,6 +77,12 @@ function DevNavigator() {
         >
           Day 15: Staff Auth
         </button>
+        <button 
+          onClick={() => setActiveTab('emr')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'emr' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+        >
+          Day 16: EMR Viewer
+        </button>
       </div>
 
       {/* Render Active Page */}
@@ -88,6 +95,7 @@ function DevNavigator() {
         {activeTab === 'registration' && <PatientRegistrationPage />}
         {activeTab === 'status' && <SystemStatusPage />}
         {activeTab === 'staffauth' && <StaffAuthPage />}
+        {activeTab === 'emr' && <EMRViewerPage />}
       </div>
     </div>
   );
