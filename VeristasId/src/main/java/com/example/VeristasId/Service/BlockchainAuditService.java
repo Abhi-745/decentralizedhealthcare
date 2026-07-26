@@ -1,49 +1,58 @@
 package com.example.VeristasId.Service;
 
+import com.example.VeristasId.Blockchain.VeristasAudit;
 import com.example.VeristasId.Dto.AuditLogBlock;
 import com.example.VeristasId.Model.AuditBlockEntity;
 import com.example.VeristasId.Repository.AuditBlockRepository;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.web3j.crypto.Credentials;
-import org.web3j.crypto.RawTransaction;
-import org.web3j.crypto.TransactionEncoder;
-import org.web3j.crypto.Keys;
-import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
-import org.web3j.protocol.core.methods.response.EthSendTransaction;
-import org.web3j.protocol.http.HttpService;
-import org.web3j.utils.Numeric;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * BlockchainAuditService
+ *
+ * Three-layer immutable audit system (all three fire for every access event):
+ *
+ *   Layer 1 — In-memory SHA-256 linked chain (instant read performance)
+ *   Layer 2 — PostgreSQL persistence     (survives restarts, queryable)
+ *   Layer 3 — Ethereum smart contract    (tamper-proof, on-chain via VeristasAudit.sol)
+ *
+ * Layer 3 requires Ganache/testnet running and BLOCKCHAIN_WALLET_PRIVATE_KEY set.
+ * If unavailable, Layers 1 & 2 operate independently — no data loss.
+ */
 @Service
 public class BlockchainAuditService {
 
-    // In-memory chain for fast reads (rebuilt from DB on startup)
+    private static final Logger log = LoggerFactory.getLogger(BlockchainAuditService.class);
+
+    // ── Layer 1: In-memory chain (rebuilt from DB on startup) ─────────────────
     private final List<AuditLogBlock> blockchain = new ArrayList<>();
 
-    private final AuditBlockRepository auditBlockRepository;
+    // ── Dependencies ──────────────────────────────────────────────────────────
+    private final AuditBlockRepository      auditBlockRepository;
+    private final ContractLifecycleService  contractService;
 
-    // Web3 components
-    private Web3j web3j;
-    private Credentials credentials;
-    private boolean isWeb3Active = false;
-
-    public BlockchainAuditService(AuditBlockRepository auditBlockRepository) {
+    public BlockchainAuditService(AuditBlockRepository auditBlockRepository,
+                                  ContractLifecycleService contractService) {
         this.auditBlockRepository = auditBlockRepository;
+        this.contractService      = contractService;
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Startup — rebuild in-memory chain from PostgreSQL
+    // ─────────────────────────────────────────────────────────────────────────
 
     @PostConstruct
     public void initGenesisBlock() {
-        // --- PERSISTENCE: Reload existing blocks from DB into memory ---
         List<AuditBlockEntity> savedBlocks = auditBlockRepository.findAll();
+
         if (!savedBlocks.isEmpty()) {
-            // Rebuild the in-memory chain from PostgreSQL
+            // Rebuild Layer 1 from Layer 2 (PostgreSQL)
             savedBlocks.stream()
                     .sorted((a, b) -> Integer.compare(a.getBlockIndex(), b.getBlockIndex()))
                     .forEach(entity -> {
@@ -59,34 +68,37 @@ public class BlockchainAuditService {
                         );
                         blockchain.add(block);
                     });
-            System.out.println("⛓️ [BLOCKCHAIN] Loaded " + blockchain.size() + " blocks from PostgreSQL. Audit Log restored.");
+
+            log.info("⛓️  [AUDIT] Reloaded {} blocks from PostgreSQL. In-memory chain restored.", blockchain.size());
         } else {
-            // First ever startup — create Genesis Block
-            AuditLogBlock genesisBlock = new AuditLogBlock(0, "SYSTEM", "NONE", "INIT", true, "0");
+            // Very first startup — create Genesis Block
+            AuditLogBlock genesisBlock = new AuditLogBlock(0, "SYSTEM", "NONE", "GENESIS", true, "0");
             blockchain.add(genesisBlock);
             persistBlockToDB(genesisBlock);
-            System.out.println("⛓️ [BLOCKCHAIN] Genesis Block Created. Immutable Audit Log is online.");
-        }
-
-        // Try to connect Web3j to Ganache
-        try {
-            System.out.println("🌐 [WEB3] Connecting to local Ethereum node (Ganache)...");
-            web3j = Web3j.build(new HttpService("http://127.0.0.1:8545"));
-            String clientVersion = web3j.web3ClientVersion().send().getWeb3ClientVersion();
-            System.out.println("✅ [WEB3] Connected to Node: " + clientVersion);
-            credentials = Credentials.create(Keys.createEcKeyPair());
-            isWeb3Active = true;
-        } catch (Exception e) {
-            System.out.println("⚠️ [WEB3] Falling back to In-Memory + PostgreSQL Blockchain Simulation.");
-            isWeb3Active = false;
+            log.info("⛓️  [AUDIT] Genesis Block created. Immutable audit log is online.");
         }
     }
 
-    // Called by controllers to log an access event
-    public void recordAccessAttempt(String accessorId, String targetAbhaId, String action, boolean accessGranted) {
-        AuditLogBlock lastBlock = blockchain.get(blockchain.size() - 1);
+    // ─────────────────────────────────────────────────────────────────────────
+    // Primary Write — called by all controllers on every access decision
+    // ─────────────────────────────────────────────────────────────────────────
 
-        AuditLogBlock newBlock = new AuditLogBlock(
+    /**
+     * Records an access attempt across all three audit layers.
+     *
+     * @param accessorId   Identity of the requester (JWT role or DID)
+     * @param targetAbhaId Patient ABHA ID being accessed
+     * @param action       "READ" | "WRITE" | "UPDATE"
+     * @param accessGranted true if OPA permitted access
+     */
+    public void recordAccessAttempt(String accessorId,
+                                    String targetAbhaId,
+                                    String action,
+                                    boolean accessGranted) {
+
+        // ── Layer 1 & 2: In-memory + PostgreSQL ──────────────────────────────
+        AuditLogBlock lastBlock = blockchain.get(blockchain.size() - 1);
+        AuditLogBlock newBlock  = new AuditLogBlock(
                 blockchain.size(),
                 accessorId,
                 targetAbhaId,
@@ -96,19 +108,82 @@ public class BlockchainAuditService {
         );
 
         blockchain.add(newBlock);
-
-        // --- PERSISTENCE: Save each new block to PostgreSQL ---
         persistBlockToDB(newBlock);
 
         String status = accessGranted ? "✅ GRANTED" : "🛑 DENIED";
-        System.out.println("📝 [AUDIT LOG] Block #" + newBlock.getIndex() + " Added | " + status +
-                " | Hash: " + newBlock.getHash().substring(0, 15) + "...");
+        log.info("📝 [AUDIT] Block #{} | {} | Accessor: {} | Hash: {}...",
+                newBlock.getIndex(), status, accessorId,
+                newBlock.getHash().substring(0, 12));
 
-        // Optional: also write to Ethereum
-        if (isWeb3Active) {
-            broadcastToEthereum(newBlock, status);
+        // ── Layer 3: Ethereum on-chain via VeristasAudit.sol ─────────────────
+        if (contractService.isActive()) {
+            callLogAccessOnChain(
+                contractService.getHospitalDid(),
+                accessorId,
+                targetAbhaId,
+                action,
+                accessGranted
+            );
         }
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Layer 3 — On-chain logging via VeristasAudit.logAccess()
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private void callLogAccessOnChain(String institutionDid,
+                                       String accessorId,
+                                       String targetAbhaId,
+                                       String action,
+                                       boolean accessGranted) {
+        try {
+            VeristasAudit contract = contractService.getContract();
+
+            String roleTag = deriveRoleTag(accessorId);
+            // Stage is not yet propagated into recordAccessAttempt() callers;
+            // defaulting to "access" here — TODO: pass stage through from OPA context
+            String stage = "access";
+
+            TransactionReceipt receipt = contract.logAccess(
+                    institutionDid, // _institutionDid — which hospital
+                    accessorId,     // _userDid        — accessor's DID or JWT role
+                    roleTag,        // _roleTag        — "p", "s", "h", "d"
+                    action,         // _action         — "READ", "WRITE", etc.
+                    stage,          // _stage          — emergency stage context
+                    accessGranted   // _accessGranted
+            ).send();
+
+            log.info("⛓️  [BLOCKCHAIN] logAccess() confirmed | Institution: {} | TX: {} | Gas: {}",
+                    institutionDid,
+                    receipt.getTransactionHash(),
+                    receipt.getGasUsed());
+
+        } catch (Exception e) {
+            log.warn("⚠️  [BLOCKCHAIN] On-chain log failed (block still in DB): {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Maps an accessor identity string to the VeristasAudit contract's role tag.
+     *
+     * @param accessorId Free-form identity string (JWT role, DID, etc.)
+     * @return Single-char role code: "p" (paramedic), "s" (surgeon),
+     *         "h" (hospital), "d" (dispatcher), or "x" (unknown)
+     */
+    private String deriveRoleTag(String accessorId) {
+        if (accessorId == null) return "x";
+        String lower = accessorId.toLowerCase();
+        if (lower.contains("paramedic"))  return "p";
+        if (lower.contains("surgeon"))    return "s";
+        if (lower.contains("hospital"))   return "h";
+        if (lower.contains("dispatcher")) return "d";
+        if (lower.contains("system"))     return "sys";
+        return "x";
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Layer 2 — PostgreSQL persistence
+    // ─────────────────────────────────────────────────────────────────────────
 
     private void persistBlockToDB(AuditLogBlock block) {
         AuditBlockEntity entity = new AuditBlockEntity();
@@ -123,47 +198,38 @@ public class BlockchainAuditService {
         auditBlockRepository.save(entity);
     }
 
-    private void broadcastToEthereum(AuditLogBlock block, String status) {
-        try {
-            String logData = String.format("VERISTAS_LOG|%s|%s|%s|%s|HASH:%s",
-                    block.getAccessorId(), block.getTargetAbhaId(), block.getAction(), status, block.getHash());
-            String hexData = Numeric.toHexString(logData.getBytes());
-
-            EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
-                    credentials.getAddress(), DefaultBlockParameterName.LATEST).sendAsync().get();
-            BigInteger nonce = ethGetTransactionCount.getTransactionCount();
-
-            BigInteger gasPrice = BigInteger.valueOf(20000000000L);
-            BigInteger gasLimit = BigInteger.valueOf(21000 + logData.length() * 68L + 50000);
-
-            RawTransaction rawTransaction = RawTransaction.createTransaction(
-                    nonce, gasPrice, gasLimit, credentials.getAddress(), BigInteger.ZERO, hexData);
-
-            byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
-            String hexValue = Numeric.toHexString(signedMessage);
-
-            EthSendTransaction ethSendTransaction = web3j.ethSendRawTransaction(hexValue).send();
-            if (ethSendTransaction.hasError()) {
-                System.out.println("❌ [WEB3] Failed to broadcast: " + ethSendTransaction.getError().getMessage());
-            } else {
-                System.out.println("⛓️  [WEB3] TX Hash: " + ethSendTransaction.getTransactionHash());
-            }
-        } catch (Exception e) {
-            System.out.println("⚠️ [WEB3] Error broadcasting, logged to DB only. " + e.getMessage());
-        }
-    }
+    // ─────────────────────────────────────────────────────────────────────────
+    // Read Helpers — used by AuditController
+    // ─────────────────────────────────────────────────────────────────────────
 
     public List<AuditLogBlock> getFullLedger() {
         return blockchain;
     }
 
+    /**
+     * Verifies mathematical integrity of the in-memory SHA-256 chain.
+     * Each block's hash must equal SHA-256(its data + previousHash).
+     */
     public boolean isChainValid() {
         for (int i = 1; i < blockchain.size(); i++) {
-            AuditLogBlock current = blockchain.get(i);
+            AuditLogBlock current  = blockchain.get(i);
             AuditLogBlock previous = blockchain.get(i - 1);
             if (!current.getHash().equals(current.calculateHash())) return false;
             if (!current.getPreviousHash().equals(previous.getHash())) return false;
         }
         return true;
+    }
+
+    /**
+     * Wipes and re-initialises the audit chain (dev/test only).
+     * Does NOT affect the Ethereum contract — on-chain data is immutable.
+     */
+    public void resetChain() {
+        auditBlockRepository.deleteAll();
+        blockchain.clear();
+        AuditLogBlock genesisBlock = new AuditLogBlock(0, "SYSTEM", "NONE", "GENESIS", true, "0");
+        blockchain.add(genesisBlock);
+        persistBlockToDB(genesisBlock);
+        log.info("⛓️  [AUDIT] Chain reset. New Genesis Block created. (On-chain data unaffected.)");
     }
 }

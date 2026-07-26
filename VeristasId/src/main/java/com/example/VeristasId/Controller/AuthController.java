@@ -37,4 +37,16 @@ public class AuthController {
                 "name", "Dr. Fisher"
         ));
     }
+
+    // 🔐 DISPATCHER LOGIN — the ONLY role authorized to create Emergency Sessions
+    @PostMapping("/login-dispatcher")
+    public ResponseEntity<Map<String, String>> loginDispatcher() {
+        String token = jwtService.generateToken("Control Room Alpha", "dispatcher", "DISP-0001");
+        return ResponseEntity.ok(Map.of(
+                "token", "Bearer " + token,
+                "badge", "DISP-0001",
+                "name", "Control Room Alpha",
+                "role", "dispatcher"
+        ));
+    }
 }

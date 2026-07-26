@@ -69,4 +69,20 @@ public class JwtService {
             return false;
         }
     }
+
+    // Extract the role claim from a verified staff JWT
+    public String extractRole(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return "unknown";
+        String token = authHeader.replace("Bearer ", "").trim();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(hospitalSecretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("role", String.class);
+        } catch (Exception e) {
+            return "unknown";
+        }
+    }
 }

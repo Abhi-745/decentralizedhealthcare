@@ -15,4 +15,5 @@ public class EmergencySessionEntity {
     private String esid;
     private String patientId;
     private String stage;
+    private Long createdAt;
 }

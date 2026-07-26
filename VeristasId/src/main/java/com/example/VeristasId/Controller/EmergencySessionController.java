@@ -2,6 +2,7 @@ package com.example.VeristasId.Controller;
 
 import com.example.VeristasId.Model.EmergencySessionEntity;
 import com.example.VeristasId.Repository.EmergencySessionRepository;
+import com.example.VeristasId.Service.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,14 +13,31 @@ import java.util.Map;
 public class EmergencySessionController {
 
     private final EmergencySessionRepository sessionRepository;
+    private final JwtService jwtService;
 
-    public EmergencySessionController(EmergencySessionRepository sessionRepository) {
+    public EmergencySessionController(EmergencySessionRepository sessionRepository, JwtService jwtService) {
         this.sessionRepository = sessionRepository;
+        this.jwtService = jwtService;
     }
 
-    // Endpoint to CREATE a brand new emergency session for any patient
+    // Endpoint to CREATE a brand new emergency session — DISPATCHER ROLE ONLY
     @PostMapping("/create")
-    public ResponseEntity<?> createEmergency(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> createEmergency(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> request) {
+
+        // 🔐 SECURITY GATE: Only certified dispatchers can create emergency sessions
+        if (!jwtService.verifyStaffToken(authHeader)) {
+            return ResponseEntity.status(401).body("Invalid or missing token.");
+        }
+        String role = jwtService.extractRole(authHeader);
+        if (!"dispatcher".equals(role)) {
+            return ResponseEntity.status(403).body(
+                "Access Denied: Only certified dispatchers can initiate emergency sessions. " +
+                "Your role is '" + role + "'. Paramedics and Surgeons cannot self-authorize emergencies."
+            );
+        }
+
         String esid = request.get("esid");
         String patientId = request.get("patientId");
 
@@ -27,7 +45,7 @@ public class EmergencySessionController {
             return ResponseEntity.status(409).body("Emergency Session " + esid + " already exists.");
         }
 
-        EmergencySessionEntity newSession = new EmergencySessionEntity(esid, patientId, "dispatched");
+        EmergencySessionEntity newSession = new EmergencySessionEntity(esid, patientId, "dispatched", System.currentTimeMillis());
         sessionRepository.save(newSession);
         return ResponseEntity.ok("Emergency Session " + esid + " created for patient " + patientId + ". Stage: DISPATCHED");
     }

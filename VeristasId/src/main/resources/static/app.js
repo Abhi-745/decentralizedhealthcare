@@ -34,20 +34,20 @@ btnRegister.addEventListener('click', async () => {
     try {
         const response = await fetch('/api/patients/auto-register-demo');
         const vc = await response.json();
-        
+
         patientDid = vc.subjectDid;
         patientJwt = "Bearer " + vc.proof.jwt;
 
         walletStatus.className = "status-badge status-online";
         walletStatus.innerText = "Active";
-        
+
         didText.innerText = patientDid;
         inputPatientDid.value = patientDid; // Auto-fill the hospital side for demo purposes
-        
+
         didDisplay.classList.remove('hidden');
         consentSection.classList.remove('hidden');
         btnRegister.classList.add('hidden');
-        
+
     } catch (err) {
         alert("Failed to generate Digital ID");
         btnRegister.innerText = "Try Again";
@@ -62,7 +62,7 @@ btnGrantConsent.addEventListener('click', async () => {
             delegateDid: "EMT-9110",
             purpose: "Emergency Medical Response"
         };
-        
+
         const response = await fetch('/api/consent/grant', {
             method: 'POST',
             headers: {
@@ -109,7 +109,7 @@ btnFetchEmr.addEventListener('click', async () => {
         }
 
         const data = await response.json();
-        
+
         emrData.innerHTML = '';
         Object.keys(data).forEach(key => {
             if (data[key] && key !== 'id') {
@@ -136,14 +136,14 @@ btnFetchEmr.addEventListener('click', async () => {
 btnTrigger911.addEventListener('click', async () => {
     // This is just a visual demo for the Break-Glass override on the UI
     const targetDid = inputPatientDid.value.trim() || "99-9999-9999-9999";
-    
+
     // In a real app we'd hit /api/emergency/dispatch here. 
     // Since we already hardcoded "99-9999-9999-9999" into the EmergencySimulationRunner,
     // we can just fetch it directly to show the override working!
-    
+
     try {
         btnTrigger911.innerText = "Bypassing Consent...";
-        
+
         const response = await fetch(`/api/medical-records/99-9999-9999-9999`, {
             headers: {
                 'Authorization': paramedicJwt
@@ -151,14 +151,14 @@ btnTrigger911.addEventListener('click', async () => {
         });
 
         const data = await response.json();
-        
+
         emrData.innerHTML = `
             <div class="emr-row"><div class="emr-label">Alert</div><div class="emr-value" style="color:#ef4444;font-weight:bold;">BREAK-GLASS ACTIVATED</div></div>
             <div class="emr-row"><div class="emr-label">Name</div><div class="emr-value">${data.patientName || "Unknown"}</div></div>
             <div class="emr-row"><div class="emr-label">Blood Type</div><div class="emr-value">${data.bloodGroup || "Unknown"}</div></div>
             <div class="emr-row"><div class="emr-label">Allergies</div><div class="emr-value">${data.allergies || "Unknown"}</div></div>
         `;
-        
+
         emrResult.classList.remove('hidden');
     } catch (err) {
         alert("Failed to trigger emergency override.");

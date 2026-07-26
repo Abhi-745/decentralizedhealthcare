@@ -21,6 +21,9 @@ public class VCEntity {
     @Column(nullable = false)
     private String subjectDid; // The 'owner' of the credential
 
+    @Column(name = "abha_id") // Can be null for older records, but we will set it for new ones
+    private String abhaId; // The ABHA ID associated with this credential
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String proof; // The full JWT string (TEXT type allows for long strings)
 

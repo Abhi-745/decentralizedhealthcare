@@ -31,7 +31,7 @@ public class EmergencySimulationRunner implements CommandLineRunner {
         // FIX: Only seed ES-999 if it does NOT already exist in DB
         // This prevents overwriting the stage you manually set via Postman
         if (sessionRepo.findById(testEsid).isEmpty()) {
-            sessionRepo.save(new EmergencySessionEntity(testEsid, "PAT-001", "dispatched"));
+            sessionRepo.save(new EmergencySessionEntity(testEsid, "PAT-001", "dispatched", System.currentTimeMillis()));
             log.info("ES-999 seeded fresh. Stage: DISPATCHED");
         } else {
             log.info("ES-999 already exists. Stage preserved from DB (no override).");
@@ -39,7 +39,7 @@ public class EmergencySimulationRunner implements CommandLineRunner {
 
         // FIX: Only seed the live break-glass session if it doesn't already exist
         if (sessionRepo.findById(demoPatientId).isEmpty()) {
-            sessionRepo.save(new EmergencySessionEntity(demoPatientId, demoPatientId, "dispatched"));
+            sessionRepo.save(new EmergencySessionEntity(demoPatientId, demoPatientId, "dispatched", System.currentTimeMillis()));
             log.info("Live break-glass session seeded. Stage: DISPATCHED");
         } else {
             log.info("Live break-glass session already exists. Stage preserved from DB.");

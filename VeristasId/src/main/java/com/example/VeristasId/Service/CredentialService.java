@@ -46,6 +46,22 @@ public class CredentialService {
     }
 
     public String issueCredential(CredentialRequest request) {
+        // --- NEW SECURITY FIX: Prevent Multiple JWTs per DID ---
+        Optional<VCEntity> existingVc = vcRepository.findFirstBySubjectDidAndRevokedFalse(request.getSubjectDid());
+        if (existingVc.isPresent()) {
+            throw new IllegalStateException("An active Verifiable Credential already exists for this Patient DID. You cannot generate multiple credentials.");
+        }
+
+        // --- NEW SECURITY FIX: Prevent Multiple JWTs per ABHA ID ---
+        String abhaId = (String) request.getClaims().get("abhaId");
+        if (abhaId != null) {
+            Optional<VCEntity> existingAbhaVc = vcRepository.findFirstByAbhaIdAndRevokedFalse(abhaId);
+            if (existingAbhaVc.isPresent()) {
+                throw new IllegalStateException("An active Verifiable Credential already exists for this ABHA ID. You cannot register multiple DIDs to the same ABHA ID.");
+            }
+        }
+        // -----------------------------------------------
+
         String token = Jwts.builder()
                 .setIssuer(issuerDid)
                 .setSubject(request.getSubjectDid())
@@ -58,6 +74,7 @@ public class CredentialService {
 
         VCEntity vc = new VCEntity();
         vc.setSubjectDid(request.getSubjectDid());
+        vc.setAbhaId(abhaId);
         vc.setProof(token);
         vc.setRevoked(false);
         vcRepository.save(vc);

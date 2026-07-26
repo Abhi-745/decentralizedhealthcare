@@ -254,7 +254,7 @@ class OpaServiceTest {
         // Then falls back to findFirstByPatientId(target).
 
         when(sessionRepo.findById("PAT-999")).thenReturn(Optional.empty()); // esid lookup fails
-        when(sessionRepo.findFirstByPatientId("PAT-999")).thenReturn(Optional.of(dispatchedSession()));
+        when(sessionRepo.findFirstByPatientIdOrderByCreatedAtDesc("PAT-999")).thenReturn(Optional.of(dispatchedSession()));
         when(restTemplate.postForObject(anyString(), any(), eq(OpaResponse.class))).thenReturn(allow());
 
         boolean result = opaService.checkAccess("Bearer token", "PAT-999", "read");
@@ -262,7 +262,7 @@ class OpaServiceTest {
         assertTrue(result, "OpaService must fall back to patientId lookup when esid lookup returns empty");
         // Verify both lookup paths were attempted
         verify(sessionRepo).findById("PAT-999");
-        verify(sessionRepo).findFirstByPatientId("PAT-999");
+        verify(sessionRepo).findFirstByPatientIdOrderByCreatedAtDesc("PAT-999");
     }
 
     @Test
@@ -272,7 +272,7 @@ class OpaServiceTest {
         // OPA will evaluate with empty stage → no rule matches → deny.
 
         when(sessionRepo.findById("UNKNOWN")).thenReturn(Optional.empty());
-        when(sessionRepo.findFirstByPatientId("UNKNOWN")).thenReturn(Optional.empty());
+        when(sessionRepo.findFirstByPatientIdOrderByCreatedAtDesc("UNKNOWN")).thenReturn(Optional.empty());
         when(restTemplate.postForObject(anyString(), any(), eq(OpaResponse.class))).thenReturn(deny());
 
         boolean result = opaService.checkAccess("Bearer token", "UNKNOWN", "read");
@@ -280,7 +280,7 @@ class OpaServiceTest {
         assertFalse(result, "When no session exists, OPA must deny (no stage matches any Rego rule)");
         // Verify that both repository methods were called (not just findById)
         verify(sessionRepo).findById("UNKNOWN");
-        verify(sessionRepo).findFirstByPatientId("UNKNOWN");
+        verify(sessionRepo).findFirstByPatientIdOrderByCreatedAtDesc("UNKNOWN");
     }
 
     // ─── 5. TOKEN NORMALISATION TESTS ────────────────────────────────────────

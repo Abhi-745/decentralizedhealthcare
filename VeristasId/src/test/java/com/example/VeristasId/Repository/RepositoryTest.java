@@ -161,7 +161,7 @@ class RepositoryTest {
         sessionRepo.save(new EmergencySessionEntity("ES-OLD", "PAT-X", "completed", now - 10000));
         sessionRepo.save(new EmergencySessionEntity("ES-NEW", "PAT-X", "dispatched", now));
 
-        Optional<EmergencySessionEntity> found = sessionRepo.findFirstByPatientId("PAT-X");
+        Optional<EmergencySessionEntity> found = sessionRepo.findFirstByPatientIdOrderByCreatedAtDesc("PAT-X");
         assertTrue(found.isPresent());
         // ORDER BY createdAt DESC → should return the newest session
         assertEquals("ES-NEW", found.get().getEsid());
@@ -169,7 +169,7 @@ class RepositoryTest {
 
     @Test
     void findFirstByPatientId_notFound_returnsEmpty() {
-        Optional<EmergencySessionEntity> found = sessionRepo.findFirstByPatientId("UNKNOWN-PAT");
+        Optional<EmergencySessionEntity> found = sessionRepo.findFirstByPatientIdOrderByCreatedAtDesc("UNKNOWN-PAT");
         assertFalse(found.isPresent());
     }
 

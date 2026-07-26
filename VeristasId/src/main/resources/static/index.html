@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="background-orbs">
         <div class="orb orb-1"></div>
@@ -27,10 +29,10 @@
                     <h2>📱 Patient Wallet</h2>
                     <span class="status-badge status-offline" id="wallet-status">Unregistered</span>
                 </div>
-                
+
                 <div class="card-content">
                     <button id="btn-register" class="btn btn-primary glow-effect">Generate Digital ID (DID)</button>
-                    
+
                     <div id="did-display" class="hidden code-block mt-4">
                         <p class="label">Your Decentralized ID:</p>
                         <code id="did-text">...</code>
@@ -58,12 +60,13 @@
                     <h2>🏥 Hospital Portal</h2>
                     <span class="role-badge">Paramedic: EMT-9110</span>
                 </div>
-                
+
                 <div class="card-content">
                     <div class="emr-lookup">
                         <p class="label">Query Electronic Medical Record:</p>
                         <div class="input-group">
-                            <input type="text" id="patient-did-input" placeholder="Enter Patient DID (did:veristas:...)">
+                            <input type="text" id="patient-did-input"
+                                placeholder="Enter Patient DID (did:veristas:...)">
                             <button id="btn-fetch-emr" class="btn btn-secondary">Fetch EMR</button>
                         </div>
                     </div>
@@ -76,7 +79,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <hr class="divider">
 
                     <div class="emergency-override mt-6">
@@ -91,4 +94,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>

@@ -103,7 +103,15 @@ public class MedicalRecordController {
                     if (record.getDiagnosis() != null) resp.put("diagnosis", record.getDiagnosis());
                     return ResponseEntity.ok(resp);
                 })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+                .orElseGet(() -> {
+                    Map<String, String> resp = new HashMap<>();
+                    resp.put("abhaId", abhaId);
+                    resp.put("patientName", "Unknown Patient (Unregistered)");
+                    resp.put("bloodGroup", "Unknown");
+                    resp.put("allergies", "Unknown");
+                    resp.put("diagnosis", "No pre-existing records found in hospital DB.");
+                    return ResponseEntity.ok(resp);
+                });
     }
 
     // Called by DataInjector to seed patients — now saves to DB instead of HashMap

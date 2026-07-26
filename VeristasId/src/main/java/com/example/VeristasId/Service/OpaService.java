@@ -31,9 +31,10 @@ public class OpaService {
         this.sessionRepo = sessionRepo;
     }
 
-    public boolean checkAccess(String token, String esid, String action) {
-        // 1. Fetch the current state of the emergency session
-        EmergencySessionEntity session = sessionRepo.findById(esid).orElse(null);
+    public boolean checkAccess(String token, String targetId, String action) {
+        // 1. Fetch the current state of the emergency session (Checking by ESID or by Patient ABHA ID)
+        EmergencySessionEntity session = sessionRepo.findById(targetId)
+                .orElseGet(() -> sessionRepo.findFirstByPatientIdOrderByCreatedAtDesc(targetId).orElse(null));
 
         // FIX 1: Ensure the token has the "Bearer " prefix so OPA can split it correctly
         String safeToken = token.startsWith("Bearer ") ? token : "Bearer " + token;
@@ -44,6 +45,11 @@ public class OpaService {
         // Build a safe session object for OPA
         Map<String, Object> sessionData = new HashMap<>();
         sessionData.put("stage", safeStage);
+        if (session != null && session.getCreatedAt() != null) {
+            sessionData.put("createdAt", session.getCreatedAt());
+        } else {
+            sessionData.put("createdAt", 0L);
+        }
 
         // 2. Build the input payload
         Map<String, Object> inputMap = new HashMap<>();

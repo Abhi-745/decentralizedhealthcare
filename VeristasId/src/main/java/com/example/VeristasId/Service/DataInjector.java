@@ -66,7 +66,14 @@ public class DataInjector implements CommandLineRunner {
         String surgeonBadge = "SURG-1000";
         String surgeonToken = jwtService.generateToken(surgeonName, "surgeon", surgeonBadge);
         System.out.println("🩺 Surgeon: " + surgeonName + " (" + surgeonBadge + ")");
-        System.out.println("🔑 JWT: Bearer " + surgeonToken);
+        System.out.println("🔑 JWT: Bearer " + surgeonToken + "\n");
+
+        // 🔐 DISPATCHER — the ONLY role that can create Emergency Sessions
+        String dispatcherName = "Control Room Alpha";
+        String dispatcherBadge = "DISP-0001";
+        String dispatcherToken = jwtService.generateToken(dispatcherName, "dispatcher", dispatcherBadge);
+        System.out.println("📡 Dispatcher: " + dispatcherName + " (" + dispatcherBadge + ")");
+        System.out.println("🔑 JWT: Bearer " + dispatcherToken);
 
         System.out.println("=======================================================\n");
     }

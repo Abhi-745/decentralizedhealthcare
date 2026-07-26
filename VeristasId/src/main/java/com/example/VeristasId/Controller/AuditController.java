@@ -41,4 +41,11 @@ public class AuditController {
 
         return ResponseEntity.ok(response);
     }
+
+    // Endpoint 3: Reset the blockchain ledger (wipes ONLY the audit history)
+    @org.springframework.web.bind.annotation.DeleteMapping("/reset")
+    public ResponseEntity<Map<String, String>> resetAuditLedger() {
+        auditService.resetChain();
+        return ResponseEntity.ok(Map.of("message", "Blockchain Audit Ledger successfully reset. New Genesis Block initialized."));
+    }
 }

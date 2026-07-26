@@ -21,7 +21,7 @@ public class PatientRegistrationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<VerifiableCredential> registerPatient(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<?> registerPatient(@RequestBody RegistrationRequest request) {
         try {
             // 1. Hospital generates and signs the Verifiable Credential
             VerifiableCredential issuedVc = issuanceService.issueCredential(request);
@@ -32,6 +32,9 @@ public class PatientRegistrationController {
             // 3. Return a 200 OK with the full JSON payload
             return ResponseEntity.ok(issuedVc);
 
+        } catch (IllegalStateException e) {
+            // Return a clean 409 Conflict error with the actual message to the user!
+            return ResponseEntity.status(409).body(java.util.Map.of("error", e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
@@ -40,7 +43,7 @@ public class PatientRegistrationController {
 
     // A helper endpoint so you can test it easily without a request body
     @GetMapping("/auto-register-demo")
-    public ResponseEntity<VerifiableCredential> autoRegisterDemoPatient() {
+    public ResponseEntity<?> autoRegisterDemoPatient() {
         // Automatically grab the dummy data from the wallet and register them
         RegistrationRequest req = new RegistrationRequest("99-9999-9999-9999", walletService.getPatientDid());
         return registerPatient(req);

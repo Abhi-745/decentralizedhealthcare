@@ -6,96 +6,75 @@ import { store } from './store/store'
 import './index.css'
 import { ToastProvider } from './components/Toast'
 
-// Set the base URL for all axios requests.
-// In local dev, this is empty (so Vite proxy handles /api).
-// In production (Vercel), we will set VITE_API_BASE_URL to the Railway URL.
+// Set base URL: empty in dev (Vite proxy), Railway URL in production
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
 
-// Import the pages we have built
-import ConsentManager from './pages/ConsentManager'
-import VCViewerPage from './pages/VCViewerPage'
-import EmergencyDashboard from './pages/EmergencyDashboard'
-import AuditLogViewer from './pages/AuditLogViewer'
-import StaffLoginPage from './pages/StaffLoginPage'
+// Pages
+import HomePage             from './pages/HomePage'
+import ConsentManager       from './pages/ConsentManager'
+import VCViewerPage         from './pages/VCViewerPage'
+import EmergencyDashboard   from './pages/EmergencyDashboard'
+import AuditLogViewer       from './pages/AuditLogViewer'
+import StaffLoginPage       from './pages/StaffLoginPage'
 import PatientRegistrationPage from './pages/PatientRegistrationPage'
-import SystemStatusPage from './pages/SystemStatusPage'
-import StaffAuthPage from './pages/StaffAuthPage'
-import EMRViewerPage from './pages/EMRViewerPage'
+import SystemStatusPage     from './pages/SystemStatusPage'
+import StaffAuthPage        from './pages/StaffAuthPage'
+import EMRViewerPage        from './pages/EMRViewerPage'
+
+const TABS = [
+  { key: 'consent',      label: 'Day 8: Consent'        },
+  { key: 'vc',           label: 'Day 9: VC Viewer'      },
+  { key: 'emergency',    label: 'Day 10: Emergency'      },
+  { key: 'audit',        label: 'Day 11: Audit Log'      },
+  { key: 'staff',        label: 'Day 12: Staff Login'    },
+  { key: 'registration', label: 'Day 13: Registration'   },
+  { key: 'status',       label: 'Day 14: System Status'  },
+  { key: 'staffauth',    label: 'Day 15: Staff Auth'     },
+  { key: 'emr',          label: 'Day 16: EMR Viewer'     },
+];
 
 function DevNavigator() {
-  const [activeTab, setActiveTab] = useState('emergency');
+  const [activeTab, setActiveTab] = useState('home');
+
+  if (activeTab === 'home') {
+    return <HomePage onEnter={() => setActiveTab('emergency')} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* Dev Navigation Bar */}
-      <div className="bg-slate-900 border-b border-white/10 p-4 flex justify-center gap-4">
-        <button 
-          onClick={() => setActiveTab('consent')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'consent' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+      {/* Compact nav bar */}
+      <div className="bg-slate-900 border-b border-white/10 p-3 flex flex-wrap justify-center gap-2">
+        <button
+          onClick={() => setActiveTab('home')}
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25"
         >
-          Day 8: Consent Manager
+          ← Home
         </button>
-        <button 
-          onClick={() => setActiveTab('vc')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'vc' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 9: VC Viewer
-        </button>
-        <button 
-          onClick={() => setActiveTab('emergency')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'emergency' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 10: Emergency Dashboard
-        </button>
-        <button 
-          onClick={() => setActiveTab('audit')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'audit' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 11: Audit Log
-        </button>
-        <button 
-          onClick={() => setActiveTab('staff')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'staff' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 12: Staff Login
-        </button>
-        <button 
-          onClick={() => setActiveTab('registration')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'registration' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 13: Patient Registration
-        </button>
-        <button 
-          onClick={() => setActiveTab('status')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'status' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 14: System Status
-        </button>
-        <button 
-          onClick={() => setActiveTab('staffauth')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'staffauth' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 15: Staff Auth
-        </button>
-        <button 
-          onClick={() => setActiveTab('emr')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'emr' ? 'bg-indigo-500 text-white' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-        >
-          Day 16: EMR Viewer
-        </button>
+        {TABS.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+              ${activeTab === key
+                ? 'bg-indigo-500 text-white'
+                : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Render Active Page */}
+      {/* Active page content */}
       <div className="flex-1 overflow-auto">
-        {activeTab === 'consent' && <ConsentManager />}
-        {activeTab === 'vc' && <VCViewerPage />}
-        {activeTab === 'emergency' && <EmergencyDashboard />}
-        {activeTab === 'audit' && <AuditLogViewer />}
-        {activeTab === 'staff' && <StaffLoginPage />}
+        {activeTab === 'consent'      && <ConsentManager />}
+        {activeTab === 'vc'           && <VCViewerPage />}
+        {activeTab === 'emergency'    && <EmergencyDashboard />}
+        {activeTab === 'audit'        && <AuditLogViewer />}
+        {activeTab === 'staff'        && <StaffLoginPage />}
         {activeTab === 'registration' && <PatientRegistrationPage />}
-        {activeTab === 'status' && <SystemStatusPage />}
-        {activeTab === 'staffauth' && <StaffAuthPage />}
-        {activeTab === 'emr' && <EMRViewerPage />}
+        {activeTab === 'status'       && <SystemStatusPage />}
+        {activeTab === 'staffauth'    && <StaffAuthPage />}
+        {activeTab === 'emr'          && <EMRViewerPage />}
       </div>
     </div>
   );
