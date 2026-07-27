@@ -20,6 +20,7 @@ import PatientRegistrationPage from './pages/PatientRegistrationPage'
 import SystemStatusPage     from './pages/SystemStatusPage'
 import StaffAuthPage        from './pages/StaffAuthPage'
 import EMRViewerPage        from './pages/EMRViewerPage'
+import ChainVisualizerPage  from './pages/ChainVisualizerPage'
 
 const TABS = [
   { key: 'consent',      label: 'Day 8: Consent'        },
@@ -31,6 +32,7 @@ const TABS = [
   { key: 'status',       label: 'Day 14: System Status'  },
   { key: 'staffauth',    label: 'Day 15: Staff Auth'     },
   { key: 'emr',          label: 'Day 16: EMR Viewer'     },
+  { key: 'chain',        label: 'Day 18: Chain Viewer'    },
 ];
 
 function DevNavigator() {
@@ -75,6 +77,7 @@ function DevNavigator() {
         {activeTab === 'status'       && <SystemStatusPage />}
         {activeTab === 'staffauth'    && <StaffAuthPage />}
         {activeTab === 'emr'          && <EMRViewerPage />}
+        {activeTab === 'chain'        && <ChainVisualizerPage />}
       </div>
     </div>
   );
