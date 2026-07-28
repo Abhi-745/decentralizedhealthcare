@@ -45,12 +45,12 @@ function AppShell() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', background: '#fafafa', display: 'flex', flexDirection: 'column' }}>
 
       {/* Nav */}
       <nav style={{
-        borderBottom: '1px solid #1c1c1c',
-        background: '#080808',
+        borderBottom: '1px solid #eaeaea',
+        background: '#ffffff',
         padding: '0 24px',
         display: 'flex',
         alignItems: 'center',
@@ -63,16 +63,16 @@ function AppShell() {
         <button
           onClick={() => setActiveTab('home')}
           style={{
-            color: '#ffffff',
+            color: '#111111',
             fontSize: '13px',
             fontWeight: '600',
             letterSpacing: '-0.02em',
             padding: '6px 12px 6px 0',
             marginRight: '8px',
-            borderRight: '1px solid #1c1c1c',
+            borderRight: '1px solid #eaeaea',
             background: 'none',
             border: 'none',
-            borderRight: '1px solid #1c1c1c',
+            borderRight: '1px solid #eaeaea',
             cursor: 'pointer',
             whiteSpace: 'nowrap',
             flexShrink: 0,
@@ -89,7 +89,7 @@ function AppShell() {
               padding: '6px 10px',
               fontSize: '12px',
               fontWeight: activeTab === key ? '500' : '400',
-              color: activeTab === key ? '#ffffff' : '#555555',
+              color: activeTab === key ? '#111111' : '#666666',
               background: 'none',
               border: 'none',
               borderBottom: activeTab === key ? '1px solid #3b82f6' : '1px solid transparent',
@@ -98,8 +98,8 @@ function AppShell() {
               flexShrink: 0,
               transition: 'color 0.15s',
             }}
-            onMouseEnter={e => { if (activeTab !== key) e.target.style.color = '#888888' }}
-            onMouseLeave={e => { if (activeTab !== key) e.target.style.color = '#555555' }}
+            onMouseEnter={e => { if (activeTab !== key) e.target.style.color = '#333333' }}
+            onMouseLeave={e => { if (activeTab !== key) e.target.style.color = '#666666' }}
           >
             {label}
           </button>

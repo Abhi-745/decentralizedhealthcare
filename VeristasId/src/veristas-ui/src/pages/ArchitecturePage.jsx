@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 const base = {
   fontFamily: "'Inter', sans-serif",
-  background: '#080808',
+  background: '#fafafa',
   minHeight: '100vh',
   padding: '48px 24px',
-  color: '#e5e5e5',
+  color: '#111111',
 };
 
 const LAYERS = [
@@ -95,18 +95,18 @@ export default function ArchitecturePage() {
 
         {/* Header */}
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: '#fff', margin: '0 0 6px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: '#111', margin: '0 0 6px' }}>
             System Architecture
           </h1>
-          <p style={{ fontSize: '13px', color: '#999', margin: 0 }}>
+          <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
             Zero-Trust Decentralised Medical Identity · VeristasId
           </p>
         </div>
 
         {/* Request flow */}
-        <div style={{ border: '1px solid #1c1c1c', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid #1c1c1c' }}>
-            <p style={{ fontSize: '11px', color: '#999', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>
+        <div style={{ border: '1px solid #eaeaea', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid #eaeaea', background: '#fafafa' }}>
+            <p style={{ fontSize: '11px', color: '#666', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>
               EVERY REQUEST — ZERO-TRUST PIPELINE
             </p>
           </div>
@@ -116,7 +116,7 @@ export default function ArchitecturePage() {
               alignItems: 'flex-start',
               gap: '16px',
               padding: '12px 16px',
-              borderBottom: i < FLOW.length - 1 ? '1px solid #111' : 'none',
+              borderBottom: i < FLOW.length - 1 ? '1px solid #eaeaea' : 'none',
             }}>
               <span style={{
                 fontFamily: 'JetBrains Mono, monospace',
@@ -126,17 +126,17 @@ export default function ArchitecturePage() {
                 flexShrink: 0,
                 marginTop: '1px',
               }}>{i + 1}</span>
-              <span style={{ fontSize: '12px', fontWeight: '500', color: '#ddd', width: '140px', flexShrink: 0 }}>{step}</span>
-              <span style={{ fontSize: '12px', color: '#999', lineHeight: '1.5' }}>{desc}</span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: '#111', width: '140px', flexShrink: 0 }}>{step}</span>
+              <span style={{ fontSize: '12px', color: '#666', lineHeight: '1.5' }}>{desc}</span>
             </div>
           ))}
         </div>
 
         {/* Layer explorer */}
-        <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '0', border: '1px solid #1c1c1c', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '0', border: '1px solid #eaeaea', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
 
           {/* Sidebar */}
-          <div style={{ borderRight: '1px solid #1c1c1c' }}>
+          <div style={{ borderRight: '1px solid #eaeaea', background: '#fafafa' }}>
             {LAYERS.map((l) => (
               <button
                 key={l.id}
@@ -148,10 +148,10 @@ export default function ArchitecturePage() {
                   padding: '12px 16px',
                   fontSize: '12px',
                   fontWeight: active === l.id ? '500' : '400',
-                  color: active === l.id ? '#fff' : '#999',
-                  background: active === l.id ? '#0f0f0f' : 'none',
+                  color: active === l.id ? '#111' : '#666',
+                  background: active === l.id ? '#fff' : 'none',
                   border: 'none',
-                  borderBottom: '1px solid #111',
+                  borderBottom: '1px solid #eaeaea',
                   borderLeft: active === l.id ? '2px solid #3b82f6' : '2px solid transparent',
                   cursor: 'pointer',
                   transition: 'color 0.1s',
@@ -165,8 +165,8 @@ export default function ArchitecturePage() {
           {/* Detail */}
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <p style={{ fontSize: '13px', fontWeight: '500', color: '#ccc', margin: '0 0 4px' }}>{layer.label}</p>
-              <p style={{ fontSize: '12px', color: '#999', margin: 0, lineHeight: '1.5' }}>{layer.desc}</p>
+              <p style={{ fontSize: '13px', fontWeight: '600', color: '#111', margin: '0 0 4px' }}>{layer.label}</p>
+              <p style={{ fontSize: '12px', color: '#666', margin: 0, lineHeight: '1.5' }}>{layer.desc}</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
               {layer.components.map(([name, role], i) => (
@@ -174,11 +174,11 @@ export default function ArchitecturePage() {
                   display: 'flex',
                   gap: '16px',
                   padding: '10px 0',
-                  borderBottom: i < layer.components.length - 1 ? '1px solid #111' : 'none',
+                  borderBottom: i < layer.components.length - 1 ? '1px solid #eaeaea' : 'none',
                   alignItems: 'baseline',
                 }}>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: '#bbb', width: '180px', flexShrink: 0 }}>{name}</span>
-                  <span style={{ fontSize: '12px', color: '#777', lineHeight: '1.4' }}>{role}</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: '#555', width: '180px', flexShrink: 0 }}>{name}</span>
+                  <span style={{ fontSize: '12px', color: '#111', lineHeight: '1.4' }}>{role}</span>
                 </div>
               ))}
             </div>
@@ -186,19 +186,20 @@ export default function ArchitecturePage() {
         </div>
 
         {/* Tech stack */}
-        <div style={{ border: '1px solid #1c1c1c', borderRadius: '8px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <p style={{ fontSize: '11px', color: '#999', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TECH STACK</p>
+        <div style={{ border: '1px solid #eaeaea', borderRadius: '8px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: '#fff' }}>
+          <p style={{ fontSize: '11px', color: '#666', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TECH STACK</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {['Spring Boot 3', 'React 18 + Vite', 'PostgreSQL + H2', 'Open Policy Agent',
               'BouncyCastle ECDSA', 'W3C Verifiable Credentials', 'SHA-256 Blockchain',
               'Ethereum / Web3j', 'JUnit 5', 'Mockito', 'Railway', 'Vercel'].map(t => (
               <span key={t} style={{
                 padding: '3px 8px',
-                border: '1px solid #1c1c1c',
+                border: '1px solid #eaeaea',
                 borderRadius: '3px',
                 fontSize: '11px',
                 fontFamily: 'JetBrains Mono, monospace',
-                color: '#777',
+                color: '#555',
+                background: '#fafafa',
               }}>{t}</span>
             ))}
           </div>

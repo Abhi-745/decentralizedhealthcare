@@ -33,7 +33,7 @@ export default function HomePage({ onEnter }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#0a0a0a',
+      background: '#fafafa',
       fontFamily: "'Inter', sans-serif",
       display: 'flex',
       flexDirection: 'column',
@@ -43,8 +43,8 @@ export default function HomePage({ onEnter }) {
       <style>{`
         @keyframes pulse2 { 0%,100%{opacity:1} 50%{opacity:.5} }
         .btn-blue:hover { background: #2563eb !important; }
-        .btn-ghost:hover { border-color: #333 !important; color: #ccc !important; }
-        .feat-card:hover { background: #121212 !important; }
+        .btn-ghost:hover { border-color: #ccc !important; color: #333 !important; }
+        .feat-card:hover { background: #fafafa !important; }
       `}</style>
 
       <div style={{ maxWidth: '620px', width: '100%', display: 'flex', flexDirection: 'column', gap: '52px' }}>
@@ -55,7 +55,7 @@ export default function HomePage({ onEnter }) {
             width: 7, height: 7, borderRadius: '50%', background: '#22c55e',
             display: 'inline-block', animation: 'pulse2 2s infinite',
           }} />
-          <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: '#555', letterSpacing: '0.03em' }}>
+          <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: '#666', letterSpacing: '0.03em' }}>
             194 tests passing · live on Railway + Vercel
           </span>
         </div>
@@ -68,7 +68,7 @@ export default function HomePage({ onEnter }) {
             fontWeight: 700,
             letterSpacing: '-0.035em',
             lineHeight: 1.08,
-            color: '#ffffff',
+            color: '#111111',
           }}>
             Zero-Trust<br />
             <span style={{
@@ -83,7 +83,7 @@ export default function HomePage({ onEnter }) {
 
           <p style={{
             margin: 0, fontSize: '15px', lineHeight: 1.7,
-            color: '#777', maxWidth: '480px',
+            color: '#666', maxWidth: '480px',
           }}>
             A patient-sovereign healthcare system built on W3C Verifiable Credentials,
             ECDSA cryptography, Open Policy Agent ABAC, and an immutable SHA-256
@@ -96,12 +96,12 @@ export default function HomePage({ onEnter }) {
           {TECH.map(t => (
             <span key={t} style={{
               padding: '4px 10px',
-              border: '1px solid #2a2a2a',
+              border: '1px solid #eaeaea',
               borderRadius: '4px',
               fontSize: '11px',
               fontFamily: 'JetBrains Mono, monospace',
-              color: '#666',
-              background: '#111',
+              color: '#555',
+              background: '#ffffff',
             }}>
               {t}
             </span>
@@ -112,10 +112,10 @@ export default function HomePage({ onEnter }) {
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          border: '1px solid #1f1f1f',
+          border: '1px solid #eaeaea',
           borderRadius: '10px',
           overflow: 'hidden',
-          background: '#0d0d0d',
+          background: '#ffffff',
         }}>
           {[
             { n: '194', l: 'Tests Passing', c: '#3b82f6' },
@@ -125,7 +125,7 @@ export default function HomePage({ onEnter }) {
           ].map(({ n, l, c }, i) => (
             <div key={l} style={{
               padding: '20px 14px',
-              borderRight: i < 3 ? '1px solid #1a1a1a' : 'none',
+              borderRight: i < 3 ? '1px solid #eaeaea' : 'none',
               display: 'flex', flexDirection: 'column', gap: '4px',
             }}>
               <span style={{
@@ -134,7 +134,7 @@ export default function HomePage({ onEnter }) {
                 letterSpacing: '-0.04em',
                 color: c,
               }}>{n}</span>
-              <span style={{ fontSize: '11px', color: '#444', lineHeight: 1.3 }}>{l}</span>
+              <span style={{ fontSize: '11px', color: '#666', lineHeight: 1.3 }}>{l}</span>
             </div>
           ))}
         </div>
@@ -144,8 +144,8 @@ export default function HomePage({ onEnter }) {
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '1px',
-          background: '#1a1a1a',
-          border: '1px solid #1a1a1a',
+          background: '#eaeaea',
+          border: '1px solid #eaeaea',
           borderRadius: '10px',
           overflow: 'hidden',
         }}>
@@ -155,16 +155,16 @@ export default function HomePage({ onEnter }) {
               className="feat-card"
               style={{
                 padding: '20px',
-                background: '#0d0d0d',
+                background: '#ffffff',
                 borderLeft: `3px solid ${accent}`,
                 display: 'flex', flexDirection: 'column', gap: '8px',
                 transition: 'background 0.15s',
               }}
             >
-              <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#e5e5e5' }}>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: '#111' }}>
                 {title}
               </p>
-              <p style={{ margin: 0, fontSize: '12px', color: '#555', lineHeight: 1.6 }}>
+              <p style={{ margin: 0, fontSize: '12px', color: '#666', lineHeight: 1.6 }}>
                 {desc}
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function HomePage({ onEnter }) {
             rel="noopener noreferrer"
             style={{
               padding: '11px 22px',
-              border: '1px solid #222',
+              border: '1px solid #eaeaea',
               borderRadius: '7px',
               color: '#666',
               fontSize: '13px',
@@ -207,6 +207,7 @@ export default function HomePage({ onEnter }) {
               textDecoration: 'none',
               transition: 'border-color 0.15s, color 0.15s',
               display: 'inline-block',
+              background: '#ffffff',
             }}
           >
             GitHub

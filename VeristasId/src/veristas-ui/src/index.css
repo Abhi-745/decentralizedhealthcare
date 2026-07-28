@@ -3,9 +3,9 @@
 @theme {
   --font-inter: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --color-bg: #080808;
-  --color-surface: #111111;
-  --color-border: #1c1c1c;
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-border: #eaeaea;
   --color-accent: #3b82f6;
 }
 
@@ -16,21 +16,21 @@
 
   body {
     @apply antialiased min-h-screen;
-    background-color: #080808;
-    color: #e5e5e5;
+    background-color: #fafafa;
+    color: #111111;
     font-family: "Inter", sans-serif;
     selection-color: #3b82f6;
     -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4 {
-    color: #ffffff;
+    color: #111111;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
 
   p {
-    color: #888888;
+    color: #666666;
     line-height: 1.6;
   }
 

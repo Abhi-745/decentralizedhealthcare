@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 const base = {
   fontFamily: "'Inter', sans-serif",
-  background: '#080808',
+  background: '#fafafa',
   minHeight: '100vh',
   padding: '48px 24px',
-  color: '#e5e5e5',
+  color: '#111111',
 };
 
 const DAYS = [
@@ -69,30 +69,30 @@ export default function TimelinePage() {
 
         {/* Header */}
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: '#fff', margin: '0 0 6px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: '#111', margin: '0 0 6px' }}>
             Build Timeline
           </h1>
-          <p style={{ fontSize: '13px', color: '#999', margin: 0 }}>
+          <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
             VeristasId · 20 days · {total} tests written · 0 failures
           </p>
         </div>
 
         {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: '1px solid #1c1c1c', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: '1px solid #eaeaea', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
           {[['20', 'Days'], [`${total}`, 'Tests'], ['11', 'Pages'], ['0', 'Failures']].map(([n, l], i) => (
             <div key={l} style={{
               padding: '16px',
-              borderRight: i < 3 ? '1px solid #1c1c1c' : 'none',
+              borderRight: i < 3 ? '1px solid #eaeaea' : 'none',
             }}>
-              <div style={{ fontSize: '20px', fontWeight: '600', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '-0.02em', color: '#fff' }}>{n}</div>
-              <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>{l}</div>
+              <div style={{ fontSize: '20px', fontWeight: '600', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '-0.02em', color: '#111' }}>{n}</div>
+              <div style={{ fontSize: '11px', color: '#666', marginTop: '2px' }}>{l}</div>
             </div>
           ))}
         </div>
 
         {/* Testing pyramid */}
-        <div style={{ border: '1px solid #1c1c1c', borderRadius: '8px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <p style={{ fontSize: '11px', color: '#999', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TESTING PYRAMID</p>
+        <div style={{ border: '1px solid #eaeaea', borderRadius: '8px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px', background: '#fff' }}>
+          <p style={{ fontSize: '11px', color: '#666', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TESTING PYRAMID</p>
           {[
             { label: 'Integration (@SpringBootTest)', n: 6,  w: '3%'  },
             { label: 'DTO / Pure Java + Reflection',  n: 7,  w: '4%'  },
@@ -101,11 +101,11 @@ export default function TimelinePage() {
             { label: 'Repository (@DataJpaTest)',      n: 44, w: '23%' },
           ].map(({ label, n, w }) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '120px', height: '2px', background: '#111', borderRadius: '1px', flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
+              <div style={{ width: '120px', height: '2px', background: '#eaeaea', borderRadius: '1px', flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ width: w, height: '100%', background: '#3b82f6', borderRadius: '1px' }} />
               </div>
-              <span style={{ fontSize: '12px', color: '#bbb', flex: 1 }}>{label}</span>
-              <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: '#777', flexShrink: 0 }}>{n}</span>
+              <span style={{ fontSize: '12px', color: '#555', flex: 1 }}>{label}</span>
+              <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: '#111', flexShrink: 0 }}>{n}</span>
             </div>
           ))}
         </div>
@@ -122,7 +122,7 @@ export default function TimelinePage() {
                   alignItems: 'center',
                   gap: '16px',
                   padding: '14px 0',
-                  borderBottom: '1px solid #111',
+                  borderBottom: '1px solid #eaeaea',
                   cursor: 'pointer',
                   userSelect: 'none',
                 }}
@@ -130,13 +130,13 @@ export default function TimelinePage() {
                 <span style={{
                   fontFamily: 'JetBrains Mono, monospace',
                   fontSize: '11px',
-                  color: '#777',
+                  color: '#111',
                   width: '36px',
                   flexShrink: 0,
                 }}>
                   D{day.range}
                 </span>
-                <span style={{ fontSize: '13px', fontWeight: '500', color: '#ccc', flex: 1 }}>
+                <span style={{ fontSize: '13px', fontWeight: '500', color: '#111', flex: 1 }}>
                   {day.title}
                 </span>
                 {day.tests > 0 && (
@@ -149,7 +149,7 @@ export default function TimelinePage() {
                     {day.tests} tests
                   </span>
                 )}
-                <span style={{ color: '#777', fontSize: '12px', flexShrink: 0 }}>
+                <span style={{ color: '#111', fontSize: '12px', flexShrink: 0 }}>
                   {open === day.range ? '−' : '+'}
                 </span>
               </div>
@@ -161,24 +161,24 @@ export default function TimelinePage() {
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '16px',
-                  borderBottom: '1px solid #111',
+                  borderBottom: '1px solid #eaeaea',
                 }}>
                   <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {day.items.map((item, i) => (
                       <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                        <span style={{ color: '#777', marginTop: '5px', flexShrink: 0, fontSize: '10px' }}>—</span>
-                        <span style={{ fontSize: '12px', color: '#bbb', lineHeight: '1.5' }}>{item}</span>
+                        <span style={{ color: '#111', marginTop: '5px', flexShrink: 0, fontSize: '10px' }}>—</span>
+                        <span style={{ fontSize: '12px', color: '#555', lineHeight: '1.5' }}>{item}</span>
                       </li>
                     ))}
                   </ul>
                   <div style={{
                     padding: '12px 14px',
-                    background: '#0d0d0d',
-                    border: '1px solid #1a1a1a',
+                    background: '#ffffff',
+                    border: '1px solid #eaeaea',
                     borderRadius: '6px',
                   }}>
-                    <p style={{ fontSize: '11px', color: '#777', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: '0 0 6px' }}>CONCEPT</p>
-                    <p style={{ fontSize: '12px', color: '#bbb', lineHeight: '1.6', margin: 0 }}>{day.concept}</p>
+                    <p style={{ fontSize: '11px', color: '#111', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: '0 0 6px' }}>CONCEPT</p>
+                    <p style={{ fontSize: '12px', color: '#555', lineHeight: '1.6', margin: 0 }}>{day.concept}</p>
                   </div>
                 </div>
               )}
