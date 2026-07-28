@@ -98,7 +98,7 @@ export default function ArchitecturePage() {
           <h1 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: '#fff', margin: '0 0 6px' }}>
             System Architecture
           </h1>
-          <p style={{ fontSize: '13px', color: '#444', margin: 0 }}>
+          <p style={{ fontSize: '13px', color: '#999', margin: 0 }}>
             Zero-Trust Decentralised Medical Identity · VeristasId
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function ArchitecturePage() {
         {/* Request flow */}
         <div style={{ border: '1px solid #1c1c1c', borderRadius: '8px', overflow: 'hidden' }}>
           <div style={{ padding: '14px 16px', borderBottom: '1px solid #1c1c1c' }}>
-            <p style={{ fontSize: '11px', color: '#444', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>
+            <p style={{ fontSize: '11px', color: '#999', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>
               EVERY REQUEST — ZERO-TRUST PIPELINE
             </p>
           </div>
@@ -126,8 +126,8 @@ export default function ArchitecturePage() {
                 flexShrink: 0,
                 marginTop: '1px',
               }}>{i + 1}</span>
-              <span style={{ fontSize: '12px', fontWeight: '500', color: '#888', width: '140px', flexShrink: 0 }}>{step}</span>
-              <span style={{ fontSize: '12px', color: '#444', lineHeight: '1.5' }}>{desc}</span>
+              <span style={{ fontSize: '12px', fontWeight: '500', color: '#ddd', width: '140px', flexShrink: 0 }}>{step}</span>
+              <span style={{ fontSize: '12px', color: '#999', lineHeight: '1.5' }}>{desc}</span>
             </div>
           ))}
         </div>
@@ -148,7 +148,7 @@ export default function ArchitecturePage() {
                   padding: '12px 16px',
                   fontSize: '12px',
                   fontWeight: active === l.id ? '500' : '400',
-                  color: active === l.id ? '#fff' : '#444',
+                  color: active === l.id ? '#fff' : '#999',
                   background: active === l.id ? '#0f0f0f' : 'none',
                   border: 'none',
                   borderBottom: '1px solid #111',
@@ -166,7 +166,7 @@ export default function ArchitecturePage() {
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <p style={{ fontSize: '13px', fontWeight: '500', color: '#ccc', margin: '0 0 4px' }}>{layer.label}</p>
-              <p style={{ fontSize: '12px', color: '#444', margin: 0, lineHeight: '1.5' }}>{layer.desc}</p>
+              <p style={{ fontSize: '12px', color: '#999', margin: 0, lineHeight: '1.5' }}>{layer.desc}</p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
               {layer.components.map(([name, role], i) => (
@@ -177,8 +177,8 @@ export default function ArchitecturePage() {
                   borderBottom: i < layer.components.length - 1 ? '1px solid #111' : 'none',
                   alignItems: 'baseline',
                 }}>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: '#555', width: '180px', flexShrink: 0 }}>{name}</span>
-                  <span style={{ fontSize: '12px', color: '#333', lineHeight: '1.4' }}>{role}</span>
+                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: '#bbb', width: '180px', flexShrink: 0 }}>{name}</span>
+                  <span style={{ fontSize: '12px', color: '#777', lineHeight: '1.4' }}>{role}</span>
                 </div>
               ))}
             </div>
@@ -187,7 +187,7 @@ export default function ArchitecturePage() {
 
         {/* Tech stack */}
         <div style={{ border: '1px solid #1c1c1c', borderRadius: '8px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <p style={{ fontSize: '11px', color: '#444', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TECH STACK</p>
+          <p style={{ fontSize: '11px', color: '#999', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TECH STACK</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {['Spring Boot 3', 'React 18 + Vite', 'PostgreSQL + H2', 'Open Policy Agent',
               'BouncyCastle ECDSA', 'W3C Verifiable Credentials', 'SHA-256 Blockchain',
@@ -198,7 +198,7 @@ export default function ArchitecturePage() {
                 borderRadius: '3px',
                 fontSize: '11px',
                 fontFamily: 'JetBrains Mono, monospace',
-                color: '#333',
+                color: '#777',
               }}>{t}</span>
             ))}
           </div>

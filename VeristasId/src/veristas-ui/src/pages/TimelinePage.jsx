@@ -72,7 +72,7 @@ export default function TimelinePage() {
           <h1 style={{ fontSize: '22px', fontWeight: '600', letterSpacing: '-0.02em', color: '#fff', margin: '0 0 6px' }}>
             Build Timeline
           </h1>
-          <p style={{ fontSize: '13px', color: '#444', margin: 0 }}>
+          <p style={{ fontSize: '13px', color: '#999', margin: 0 }}>
             VeristasId · 20 days · {total} tests written · 0 failures
           </p>
         </div>
@@ -85,14 +85,14 @@ export default function TimelinePage() {
               borderRight: i < 3 ? '1px solid #1c1c1c' : 'none',
             }}>
               <div style={{ fontSize: '20px', fontWeight: '600', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '-0.02em', color: '#fff' }}>{n}</div>
-              <div style={{ fontSize: '11px', color: '#444', marginTop: '2px' }}>{l}</div>
+              <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>{l}</div>
             </div>
           ))}
         </div>
 
         {/* Testing pyramid */}
         <div style={{ border: '1px solid #1c1c1c', borderRadius: '8px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <p style={{ fontSize: '11px', color: '#444', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TESTING PYRAMID</p>
+          <p style={{ fontSize: '11px', color: '#999', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: 0 }}>TESTING PYRAMID</p>
           {[
             { label: 'Integration (@SpringBootTest)', n: 6,  w: '3%'  },
             { label: 'DTO / Pure Java + Reflection',  n: 7,  w: '4%'  },
@@ -104,8 +104,8 @@ export default function TimelinePage() {
               <div style={{ width: '120px', height: '2px', background: '#111', borderRadius: '1px', flexShrink: 0, position: 'relative', overflow: 'hidden' }}>
                 <div style={{ width: w, height: '100%', background: '#3b82f6', borderRadius: '1px' }} />
               </div>
-              <span style={{ fontSize: '12px', color: '#555', flex: 1 }}>{label}</span>
-              <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: '#333', flexShrink: 0 }}>{n}</span>
+              <span style={{ fontSize: '12px', color: '#bbb', flex: 1 }}>{label}</span>
+              <span style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: '#777', flexShrink: 0 }}>{n}</span>
             </div>
           ))}
         </div>
@@ -130,7 +130,7 @@ export default function TimelinePage() {
                 <span style={{
                   fontFamily: 'JetBrains Mono, monospace',
                   fontSize: '11px',
-                  color: '#333',
+                  color: '#777',
                   width: '36px',
                   flexShrink: 0,
                 }}>
@@ -149,7 +149,7 @@ export default function TimelinePage() {
                     {day.tests} tests
                   </span>
                 )}
-                <span style={{ color: '#333', fontSize: '12px', flexShrink: 0 }}>
+                <span style={{ color: '#777', fontSize: '12px', flexShrink: 0 }}>
                   {open === day.range ? '−' : '+'}
                 </span>
               </div>
@@ -166,8 +166,8 @@ export default function TimelinePage() {
                   <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {day.items.map((item, i) => (
                       <li key={i} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                        <span style={{ color: '#333', marginTop: '5px', flexShrink: 0, fontSize: '10px' }}>—</span>
-                        <span style={{ fontSize: '12px', color: '#555', lineHeight: '1.5' }}>{item}</span>
+                        <span style={{ color: '#777', marginTop: '5px', flexShrink: 0, fontSize: '10px' }}>—</span>
+                        <span style={{ fontSize: '12px', color: '#bbb', lineHeight: '1.5' }}>{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -177,8 +177,8 @@ export default function TimelinePage() {
                     border: '1px solid #1a1a1a',
                     borderRadius: '6px',
                   }}>
-                    <p style={{ fontSize: '11px', color: '#333', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: '0 0 6px' }}>CONCEPT</p>
-                    <p style={{ fontSize: '12px', color: '#555', lineHeight: '1.6', margin: 0 }}>{day.concept}</p>
+                    <p style={{ fontSize: '11px', color: '#777', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.06em', margin: '0 0 6px' }}>CONCEPT</p>
+                    <p style={{ fontSize: '12px', color: '#bbb', lineHeight: '1.6', margin: 0 }}>{day.concept}</p>
                   </div>
                 </div>
               )}
