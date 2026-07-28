@@ -39,6 +39,12 @@ public class OpaSecurityFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         String path = request.getRequestURI();
 
+        // 0. Allow CORS preflight requests (OPTIONS) to pass through without authentication
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            chain.doFilter(req, res);
+            return;
+        }
+
         // 1. PUBLIC ENDPOINTS: Bypass all checks
         boolean isPublic = PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith);
         if (isPublic) {
