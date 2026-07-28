@@ -6,10 +6,8 @@ import { store } from './store/store'
 import './index.css'
 import { ToastProvider } from './components/Toast'
 
-// Set base URL: empty in dev (Vite proxy), Railway URL in production
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
 
-// Pages
 import HomePage             from './pages/HomePage'
 import ConsentManager       from './pages/ConsentManager'
 import VCViewerPage         from './pages/VCViewerPage'
@@ -25,21 +23,21 @@ import ArchitecturePage     from './pages/ArchitecturePage'
 import TimelinePage         from './pages/TimelinePage'
 
 const TABS = [
-  { key: 'consent',      label: 'Day 8: Consent'        },
-  { key: 'vc',           label: 'Day 9: VC Viewer'      },
-  { key: 'emergency',    label: 'Day 10: Emergency'      },
-  { key: 'audit',        label: 'Day 11: Audit Log'      },
-  { key: 'staff',        label: 'Day 12: Staff Login'    },
-  { key: 'registration', label: 'Day 13: Registration'   },
-  { key: 'status',       label: 'Day 14: System Status'  },
-  { key: 'staffauth',    label: 'Day 15: Staff Auth'     },
-  { key: 'emr',          label: 'Day 16: EMR Viewer'     },
-  { key: 'chain',        label: 'Day 18: Chain Viewer'    },
-  { key: 'arch',         label: 'Day 19: Architecture'    },
-  { key: 'timeline',     label: 'Day 20: Timeline'         },
+  { key: 'consent',      label: 'Consent'       },
+  { key: 'vc',           label: 'VC Viewer'     },
+  { key: 'emergency',    label: 'Emergency'     },
+  { key: 'audit',        label: 'Audit Log'     },
+  { key: 'staff',        label: 'Staff Login'   },
+  { key: 'registration', label: 'Registration'  },
+  { key: 'status',       label: 'Status'        },
+  { key: 'staffauth',    label: 'Staff Auth'    },
+  { key: 'emr',          label: 'EMR'           },
+  { key: 'chain',        label: 'Chain'         },
+  { key: 'arch',         label: 'Architecture'  },
+  { key: 'timeline',     label: 'Timeline'      },
 ];
 
-function DevNavigator() {
+function AppShell() {
   const [activeTab, setActiveTab] = useState('home');
 
   if (activeTab === 'home') {
@@ -47,31 +45,69 @@ function DevNavigator() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col">
-      {/* Compact nav bar */}
-      <div className="bg-slate-900 border-b border-white/10 p-3 flex flex-wrap justify-center gap-2">
+    <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', flexDirection: 'column' }}>
+
+      {/* Nav */}
+      <nav style={{
+        borderBottom: '1px solid #1c1c1c',
+        background: '#080808',
+        padding: '0 24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        overflowX: 'auto',
+        flexShrink: 0,
+        height: '48px',
+      }}>
+        {/* Logo / home link */}
         <button
           onClick={() => setActiveTab('home')}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25"
+          style={{
+            color: '#ffffff',
+            fontSize: '13px',
+            fontWeight: '600',
+            letterSpacing: '-0.02em',
+            padding: '6px 12px 6px 0',
+            marginRight: '8px',
+            borderRight: '1px solid #1c1c1c',
+            background: 'none',
+            border: 'none',
+            borderRight: '1px solid #1c1c1c',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}
         >
-          ← Home
+          VeristasId
         </button>
+
         {TABS.map(({ key, label }) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-              ${activeTab === key
-                ? 'bg-indigo-500 text-white'
-                : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+            style={{
+              padding: '6px 10px',
+              fontSize: '12px',
+              fontWeight: activeTab === key ? '500' : '400',
+              color: activeTab === key ? '#ffffff' : '#555555',
+              background: 'none',
+              border: 'none',
+              borderBottom: activeTab === key ? '1px solid #3b82f6' : '1px solid transparent',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={e => { if (activeTab !== key) e.target.style.color = '#888888' }}
+            onMouseLeave={e => { if (activeTab !== key) e.target.style.color = '#555555' }}
           >
             {label}
           </button>
         ))}
-      </div>
+      </nav>
 
-      {/* Active page content */}
-      <div className="flex-1 overflow-auto">
+      {/* Page content */}
+      <div style={{ flex: 1, overflow: 'auto' }}>
         {activeTab === 'consent'      && <ConsentManager />}
         {activeTab === 'vc'           && <VCViewerPage />}
         {activeTab === 'emergency'    && <EmergencyDashboard />}
@@ -93,7 +129,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>
       <ToastProvider>
-        <DevNavigator />
+        <AppShell />
       </ToastProvider>
     </Provider>
   </React.StrictMode>,
