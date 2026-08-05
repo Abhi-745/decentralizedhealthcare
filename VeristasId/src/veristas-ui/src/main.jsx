@@ -11,6 +11,7 @@ axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
 import HomePage               from './pages/HomePage'
 import StaffLoginPage         from './pages/StaffLoginPage'
 import PatientRegistrationPage from './pages/PatientRegistrationPage'
+import PatientPage            from './pages/PatientPage'
 import VCViewerPage           from './pages/VCViewerPage'
 import EmergencyDashboard     from './pages/EmergencyDashboard'
 import ConsentManager         from './pages/ConsentManager'
@@ -178,7 +179,7 @@ function AppShell() {
 
       <div style={{ flex: 1, overflow: 'auto' }}>
         {activeTab === 'staff'        && <StaffLoginPage />}
-        {activeTab === 'registration' && <PatientRegistrationPage />}
+        {activeTab === 'registration' && <PatientPage />}
         {activeTab === 'vc'           && <VCViewerPage />}
         {activeTab === 'emergency'    && <EmergencyDashboard />}
         {activeTab === 'consent'      && <ConsentManager />}
